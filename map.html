@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Staten Island Trees Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map { height: 100vh; width: 100vw; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize the map centered on Staten Island
+    var map = L.map('map').setView([40.5795, -74.1502], 11);
+
+    // Add OpenStreetMap base layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Load GeoJSON (make sure the file is in the same folder as this HTML)
+    fetch('staten_island_trees.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+              radius: 2,
+              fillColor: "#228B22",
+              color: "#006400",
+              weight: 0.5,
+              opacity: 0.8,
+              fillOpacity: 0.5
+            });
+          },
+          onEachFeature: function (feature, layer) {
+            var props = feature.properties;
+            var popup = '';
+            if (props.spc_common) popup += '<strong>Species:</strong> ' + props.spc_common + '<br>';
+            if (props.tree_dbh) popup += '<strong>DBH:</strong> ' + props.tree_dbh + '<br>';
+            if (props.address) popup += '<strong>Address:</strong> ' + props.address + '<br>';
+            layer.bindPopup(popup || "Tree");
+          }
+        }).addTo(map);
+      })
+      .catch(e => {
+        alert("Failed to load GeoJSON: " + e);
+      });
+  </script>
+</body>
+</html>

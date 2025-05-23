@@ -1,7 +1,64 @@
-# Bee Tree & Swarm Trap Mapping Project
+# Bee Tree Project
 
-**Goal:**  
-Build a tool for NYC beekeepers and stewards to visualize and map bee-friendly trees (“bee trees”) and potential swarm trap locations using public data and club/community input.
+## Overview
+This project processes and analyzes NYC 2015 Street Tree Census data to identify trees in Staten Island that are suitable for Italian honeybee habitats, based on tree diameter at breast height (DBH). The project also aims to build a tool for NYC beekeepers and stewards to visualize and map bee-friendly trees (“bee trees”) and potential swarm trap locations using public data and club/community input.
+
+## Folder Structure
+```
+bee_tree/
+├── data/
+│   ├── raw/
+│   │   └── 2015_Street_Tree_Census_-_Tree_Data_20250522.csv
+│   ├── processed/
+│   │   ├── staten_island_trees.csv
+│   │   ├── staten_island_trees.geojson
+│   │   └── staten_island_trees_filtered.geojson
+├── docs/
+│   ├── StreetTreeCensus2015TreesDataDictionary20161102.pdf
+│   └── Bee Tree .txt
+├── scripts/
+│   ├── sorter.py
+│   ├── refine.py
+│   └── refineDBH.py
+├── map.html
+└── project_notes.md
+```
+
+## Workflow
+1. **Filter for Staten Island Trees**  
+   Run `scripts/sorter.py` to extract only Staten Island trees from the full census CSV:
+   - Input: `data/raw/2015_Street_Tree_Census_-_Tree_Data_20250522.csv`
+   - Output: `data/processed/staten_island_trees.csv`
+
+2. **Convert to GeoJSON**  
+   Run `scripts/refine.py` to clean the CSV and convert it to GeoJSON:
+   - Input: `data/processed/staten_island_trees.csv`
+   - Output: `data/processed/staten_island_trees.geojson`
+
+3. **Filter by Tree Diameter (DBH)**  
+   Run `scripts/refineDBH.py` to filter trees by DBH (default: 35–80 cm, preferred by Italian honeybees):
+   - Input: `data/processed/staten_island_trees.geojson`
+   - Output: `data/processed/staten_island_trees_filtered.geojson`
+
+## Requirements
+- Python 3.x
+- pandas
+- numpy
+- geojson
+- geopandas
+
+Install dependencies with:
+```
+pip install pandas numpy geojson geopandas
+```
+
+## Documentation
+- See `docs/StreetTreeCensus2015TreesDataDictionary20161102.pdf` for data dictionary.
+- See `docs/Bee Tree .txt` for bee habitat notes.
+
+## Notes
+- All scripts assume they are run from the `scripts/` directory.
+- Adjust DBH range in `refineDBH.py` as needed for your research.
 
 ---
 
@@ -31,33 +88,5 @@ You can generate this using the included refine.py script if you have the NYC Tr
 4. Map loads and displays all tree locations for Staten Island (if you have the data).
 
 
-
-Project Structure
-map.html – Leaflet.js map and JS for viewing GeoJSON data
-
-sorter.py – Python script to filter original tree census CSV for Staten Island
-
-refine.py – Python script to clean and convert CSV to GeoJSON
-
-project_notes.md – High-level plan, goals, and current status
-
-.gitignore – Excludes all .csv and .geojson files from version control
-
-Data Notes
-NYC Tree Census 2015:
-Official data download here
-
-Data files (*.csv, *.geojson) are not included due to size
-
-If you want sample data or a demo subset, reach out or see the scripts for generating a filtered/test file
-
-Roadmap
- Add cluster visualization for better performance
-
- Enable user tagging/annotations
-
- Expand to additional boroughs or full NYC
-
- Build educational content and stewardship guidance
 
 For questions or collaboration, contact glitch-beez@gmail.com

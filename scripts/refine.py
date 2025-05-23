@@ -2,8 +2,8 @@ import pandas as pd
 import geojson
 import numpy as np
 
-input_file = 'staten_island_trees.csv'
-output_file = 'staten_island_trees.geojson'
+input_file = '../data/processed/staten_island_trees.csv'
+output_file = '../data/processed/staten_island_trees.geojson'
 
 lat_col = 'latitude'
 lon_col = 'longitude'

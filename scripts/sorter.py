@@ -1,8 +1,8 @@
 import pandas as pd
 
 # Use raw string for Windows file paths to avoid escape issues
-input_file = r'C:\Users\usher\Code\bee_tree\2015_Street_Tree_Census_-_Tree_Data_20250522.csv'
-output_file = 'staten_island_trees.csv'
+input_file = r'../data/raw/2015_Street_Tree_Census_-_Tree_Data_20250522.csv'
+output_file = '../data/processed/staten_island_trees.csv'
 
 # Read the CSV into a DataFrame with utf-8 encoding for special characters
 try:

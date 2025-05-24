@@ -1,7 +1,24 @@
-# Bee Tree Project
+Project: bee_tree
+Mapping wild pollinators in urban spaces
 
-## Overview
-This project processes and analyzes NYC 2015 Street Tree Census data to identify trees in Staten Island that are suitable for Italian honeybee habitats, based on tree diameter at breast height (DBH). The project also aims to build a tool for NYC beekeepers and stewards to visualize and map bee-friendly trees (“bee trees”) and potential swarm trap locations using public data and club/community input.
+bee_tree is a lightweight, browser-based dashboard designed to visualize feral honey bee sightings in relation to New York City's urban forestry. Built using Python for backend data processing and HTML/JavaScript for the frontend, it integrates open datasets like the NYC Street Tree Census to identify ecological relationships between tree species and wild colony nesting sites.
+
+Unlike hive registries, bee_tree focuses exclusively on feral colonies, aiming to support urban beekeepers, researchers, and land stewards with insights into habitat preferences, seasonal activity, and potential conservation opportunities.
+
+Key features:
+
+Parsing and filtering large public datasets (e.g., street tree DBH, species)
+
+Interactive mapping of bee sightings with layered tree data
+
+User-defined markers for structures (e.g., sheds, buildings) as potential nest sites
+
+Data protection strategies to obscure precise hive locations
+
+Year-over-year tracking to identify long-term trends and ecological patterns
+
+Currently in development, bee_tree is intended as a resource for the New York Bee Club, with potential utility for city agencies like NYC Parks or academic partners focused on urban ecology and pollinator health.
+
 
 ## Folder Structure
 ```

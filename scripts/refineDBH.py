@@ -28,3 +28,37 @@ for borough, geojson_file in boroughs:
         print(f"Filtered {borough} trees from {len(gdf)} to {len(filtered_gdf)} in the specified diameter range.")
     except Exception as e:
         print(f"Error processing {geojson_file}: {e}")
+
+def classify_tree_likelihood(dbh, species):
+    """
+    Classifies tree by likelihood of being a suitable bee nesting site,
+    considering DBH and species only.
+    """
+    species = species.lower()
+    
+    favorable_species = [
+        "london planetree", "pin oak", "red oak", "silver maple", 
+        "norway maple", "black locust", "american elm"
+    ]
+    
+    # DBH scoring
+    if dbh >= 35:
+        dbh_score = "high"
+    elif 25 <= dbh < 35:
+        dbh_score = "medium"
+    else:
+        dbh_score = "low"
+
+    # Species scoring
+    if any(fav in species for fav in favorable_species):
+        species_score = "favorable"
+    else:
+        species_score = "neutral"
+
+    # Final classification logic
+    if dbh_score == "high" and species_score == "favorable":
+        return "high"
+    elif dbh_score in ["medium", "high"] and species_score in ["favorable", "neutral"]:
+        return "medium"
+    else:
+        return "low"

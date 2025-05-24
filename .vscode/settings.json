@@ -1,0 +1,4 @@
+{
+    "rainbow_csv.enable_debug_logging": true,
+    "rainbow_csv.rbql_with_headers_by_default": true
+}

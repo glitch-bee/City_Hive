@@ -16,11 +16,23 @@
     // Initialize the map centered on Staten Island
     var map = L.map('map').setView([40.5795, -74.1502], 11);
 
-    // Add OpenStreetMap base layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Add CartoDB Dark Matter base layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> contributors'
     }).addTo(map);
+
+    // Color by species (example for a few common ones)
+    function getColor(species) {
+      switch (species) {
+        case 'Norway maple': return '#ff6600';
+        case 'sweetgum': return '#ffcc00';
+        case 'Callery pear': return '#00ccff';
+        case 'honeylocust': return '#00ff99';
+        case 'red maple': return '#ff33cc';
+        default: return '#ff3366';
+      }
+    }
 
     // Load GeoJSON (make sure the file is in the same folder as this HTML)
     fetch('data/processed/staten_island_trees_filtered.geojson')
@@ -30,11 +42,11 @@
           pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
               radius: 2,
-              fillColor: "#228B22",
-              color: "#006400",
+              fillColor: getColor(feature.properties.spc_common),
+              color: getColor(feature.properties.spc_common),
               weight: 0.5,
               opacity: 0.8,
-              fillOpacity: 0.5
+              fillOpacity: 0.7
             });
           },
           onEachFeature: function (feature, layer) {

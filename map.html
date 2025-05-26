@@ -109,6 +109,21 @@
       document.getElementById('addTreeForm').style.display = 'none';
     };
     // --- End User Tree Adding Functionality ---
+
+    // Load and display NYC neighborhoods GeoJSON
+    fetch('nyc_neighborhoods.geojson')
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: function (feature) {
+            return {
+              color: "#3388ff",   // outline color
+              weight: 2,          // outline thickness
+              fillOpacity: 0      // no fill
+            };
+          }
+        }).addTo(map);
+      });
   </script>
 </body>
 </html>

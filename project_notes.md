@@ -2,54 +2,53 @@
 
 ## Overview
 
-This project builds an interactive map for NYC (starting with Staten Island) where beekeepers can:
-- Tag and track locations of “bee trees” (feral colonies or hollow trees suitable for bees)
-- Mark recommended or attempted swarm trap sites
-- Use public tree data and community reports for better swarm management and stewardship
+bee_tree is a browser-based dashboard for mapping feral honey bee sightings and potential nest sites in NYC, visualizing these in relation to urban forestry data. It uses Python for data processing and Leaflet.js for interactive mapping, integrating open datasets like the NYC Street Tree Census.
 
 ---
 
 ## Goals
 
-- **Create a private, accurate pilot map for Staten Island**
-- **Design with privacy, safety, and ecological responsibility in mind**
-- **Test workflows for data gathering, input, and visualization**
-- **Prepare for possible expansion to all five boroughs**
+- **Map wild bee colonies and swarm trap sites across NYC**
+- **Support privacy, ecological responsibility, and stewardship**
+- **Enable user annotation and year-over-year tracking**
+- **Prepare for collaboration with NY Bee Club, city agencies, and researchers**
 
 ---
 
 ## Project Stages & Status
 
 ### 1. Data Preparation
-- [x] Filtered NYC Tree Census CSV for Staten Island (`borocode = 5`)
-- [x] Cleaned all latitude/longitude and property fields to remove NaN/inf and ensure GeoJSON compatibility
-- [ ] (Optional, future) Further filter by species (e.g., maple, oak, sycamore) and minimum DBH for “likely bee trees”
-- [x] Saved as `staten_island_trees.csv` and `staten_island_trees.geojson` for mapping
+- [x] Filtered and cleaned NYC Tree Census data for all boroughs
+- [x] Converted CSVs to GeoJSON for mapping
+- [x] Merged borough data for citywide analysis
+- [ ] (Optional) Further filter by species and DBH for “likely bee trees”
 
-### 2. Basic Mapping Prototype
-- [x] Built Leaflet.js map displaying all Staten Island trees as points using local GeoJSON
-- [x] Tested map performance with the full dataset (105k+ points)
-- [ ] Add clustering or filters if needed for performance/usability
+### 2. Mapping Prototype
+- [x] Leaflet.js map displays all trees as points (citywide)
+- [x] Performance tested with large datasets
+- [ ] Add clustering or filters for usability if needed
+- [ ] (Later) Add neighborhood outlines as a non-intrusive overlay
 
 ### 3. User Input and Annotation
-- [ ] Decide on initial input method (Google Form, Google Sheet, or manual entry for now)
-- [ ] Allow tagging of “bee trees” and swarm trap locations (with optional notes)
-- [ ] Link tagged locations back to the map for review
+- [x] Basic form for adding user markers (bee trees, swarm traps)
+- [ ] Persist user input (localStorage, downloadable file, or backend)
+- [ ] Allow marker categories and notes
+- [ ] Link user-submitted locations back to the map for review
 
 ### 4. Privacy and Safeguards
-- [ ] Use only approximate locations for sensitive trees (nearest intersection or block)
+- [ ] Obscure precise hive locations (e.g., round/jitter coordinates)
 - [ ] Anonymize all user submissions (no names/emails in public views)
-- [ ] Include stewardship guidelines and privacy reminders in all user interfaces
+- [ ] Include stewardship guidelines and privacy reminders in UI
 - [ ] (Optional) Moderate or approve tags before adding to the map
 
 ### 5. Pilot Testing
-- [ ] Invite a small group of trusted NYBC members to test the tool
+- [ ] Invite NYBC members for pilot testing
 - [ ] Collect feedback on usability, privacy, and educational value
 - [ ] Iterate and improve based on feedback
 
 ### 6. Expansion Planning
-- [ ] Plan for full NYC rollout if pilot succeeds
-- [ ] Explore backend/database options for dynamic, scalable mapping
+- [ ] Plan for full NYC rollout and scalable backend
+- [ ] Explore backend/database options (Firebase, Supabase, etc.)
 - [ ] Draft additional educational resources and outreach materials
 
 ---
@@ -57,31 +56,32 @@ This project builds an interactive map for NYC (starting with Staten Island) whe
 ## Technical Stack
 
 - **Frontend:** Leaflet.js (interactive map)
-- **Data:** Cleaned CSV and GeoJSON for tree data; future: simple CSV or Google Sheet for user input
-- **Backend (future):** Firebase, Supabase, Airtable, or other cloud database for submissions and real-time updates
+- **Data:** Cleaned CSV and GeoJSON for tree data; user input via form
+- **Backend (future):** Cloud database for persistent, real-time submissions
 
 ---
 
 ## Risks and Considerations
 
-- Data volume and browser performance with large datasets
+- Browser performance with large datasets
 - User privacy and property rights
-- Ecological responsibility (do no harm to wild colonies or habitat)
+- Ecological responsibility (protect wild colonies)
 - Need for moderation as project scales
 
 ---
 
 ## Next Steps
 
-- [x] Finalize data filtering/cleaning scripts for Staten Island
-- [x] Set up local project folder
+- [x] Finalize citywide data filtering/cleaning scripts
+- [x] Set up local project folder and documentation
 - [ ] Create and push to private GitHub repo
-- [x] Add this plan and documentation to the repo
-- [ ] Begin experimenting with user input and annotation features
+- [ ] Implement persistent user annotation (localStorage or backend)
+- [ ] Add privacy features for sensitive locations
+- [ ] Prepare for pilot testing with NYBC
 
 ---
 
 **Prepared by:**  
 Usher  
-5.22.25
+5.27.25
 

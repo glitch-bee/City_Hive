@@ -31,6 +31,17 @@ This project builds an interactive map for NYC (starting with Staten Island) whe
 - [x] Tested map performance with the full dataset (105k+ points)
 - [ ] Add clustering or filters if needed for performance/usability
 
+---
+
+### **NEW: API-Based Prototype (2025-05-28)**
+- [x] Developed a lightweight script to query the NYC Street Tree Census API directly for filtered data (e.g., trees with DBH between 35–80 cm)
+- [x] Outputs GeoJSON suitable for mapping in Leaflet.js
+- [x] Added a new proof-of-concept `treetest` directory with `test.py`, `map.html`, and sample GeoJSON output
+- [x] Confirmed the API approach keeps data lightweight and current without requiring local bulk files
+- [ ] (Planned) Expand API usage for more dynamic queries and possibly direct-to-frontend (JavaScript-based) filtering
+
+---
+
 ### 3. User Input and Annotation
 - [ ] Decide on initial input method (Google Form, Google Sheet, or manual entry for now)
 - [ ] Allow tagging of “bee trees” and swarm trap locations (with optional notes)
@@ -57,7 +68,8 @@ This project builds an interactive map for NYC (starting with Staten Island) whe
 ## Technical Stack
 
 - **Frontend:** Leaflet.js (interactive map)
-- **Data:** Cleaned CSV and GeoJSON for tree data; future: simple CSV or Google Sheet for user input
+- **Data:** Cleaned CSV and GeoJSON for tree data;  
+  **NEW:** Direct API queries for real-time, filtered tree data (see `treetest/`)
 - **Backend (future):** Firebase, Supabase, Airtable, or other cloud database for submissions and real-time updates
 
 ---
@@ -77,11 +89,11 @@ This project builds an interactive map for NYC (starting with Staten Island) whe
 - [x] Set up local project folder
 - [ ] Create and push to private GitHub repo
 - [x] Add this plan and documentation to the repo
+- [x] **Develop and test API-based mapping workflow (see `treetest/`)**
 - [ ] Begin experimenting with user input and annotation features
 
 ---
 
 **Prepared by:**  
 Usher  
-5.22.25
-
+5.22.25 (updated 5.28.25)

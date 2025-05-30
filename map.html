@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Staten Island Trees Map</title>
+  <title>Bee Tree Locator</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -11,6 +11,15 @@
 </head>
 <body>
   <div id="map"></div>
+  <!-- User Tree Input Form -->
+  <form id="addTreeForm" style="position:absolute;top:10px;left:10px;z-index:1000;background:#222;padding:10px;color:#fff;display:none;">
+    <label>Species: <input type="text" id="speciesInput"></label><br>
+    <label>DBH (cm): <input type="number" id="dbhInput" min="0"></label><br>
+    <input type="hidden" id="latInput">
+    <input type="hidden" id="lngInput">
+    <button type="submit">Add Tree</button>
+    <button type="button" onclick="document.getElementById('addTreeForm').style.display='none'">Cancel</button>
+  </form>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     // Initialize the map centered on Staten Island
@@ -62,6 +71,59 @@
       .catch(e => {
         alert("Failed to load GeoJSON: " + e);
       });
+
+    // --- User Tree Adding Functionality ---
+    var userTrees = [];
+
+    // Show form on map click
+    map.on('click', function(e) {
+      document.getElementById('addTreeForm').style.display = 'block';
+      document.getElementById('latInput').value = e.latlng.lat;
+      document.getElementById('lngInput').value = e.latlng.lng;
+    });
+
+    // Handle form submission
+    document.getElementById('addTreeForm').onsubmit = function(ev) {
+      ev.preventDefault();
+      var species = document.getElementById('speciesInput').value;
+      var dbh = document.getElementById('dbhInput').value;
+      var lat = parseFloat(document.getElementById('latInput').value);
+      var lng = parseFloat(document.getElementById('lngInput').value);
+
+      var marker = L.circleMarker([lat, lng], {
+        radius: 4,
+        fillColor: '#00ff00',
+        color: '#00ff00',
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).addTo(map);
+
+      var popup = '<strong>User Tree</strong><br>';
+      if (species) popup += 'Species: ' + species + '<br>';
+      if (dbh) popup += 'DBH: ' + dbh + ' cm<br>';
+      marker.bindPopup(popup);
+
+      userTrees.push({lat, lng, species, dbh});
+      document.getElementById('addTreeForm').reset();
+      document.getElementById('addTreeForm').style.display = 'none';
+    };
+    // --- End User Tree Adding Functionality ---
+
+    // (Neighborhood outlines temporarily disabled)
+    // fetch('nyc_neighborhoods.geojson')
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     L.geoJSON(data, {
+    //       style: function (feature) {
+    //         return {
+    //           color: "#3388ff",   // outline color
+    //           weight: 2,          // outline thickness
+    //           fillOpacity: 0      // no fill
+    //         };
+    //       }
+    //     }).addTo(map);
+    //   });
   </script>
 </body>
 </html>

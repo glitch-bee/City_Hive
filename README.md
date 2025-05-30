@@ -1,134 +1,83 @@
-Project: bee_tree
-Mapping wild pollinators in urban spaces
+Bee Tree NYC
+============
 
-bee_tree is a lightweight, browser-based dashboard designed to visualize feral honey bee sightings in relation to New York City's urban forestry. Built using Python for backend data processing and HTML/JavaScript for the frontend, it integrates open datasets like the NYC Street Tree Census to identify ecological relationships between tree species and wild colony nesting sites.
+Bee Tree is a lightweight browser-based dashboard for mapping feral honey bee sightings and potential nest sites in NYC, visualized alongside urban forestry data.
 
-Unlike hive registries, bee_tree focuses exclusively on feral colonies, aiming to support urban beekeepers, researchers, and land stewards with insights into habitat preferences, seasonal activity, and potential conservation opportunities.
+- Maps wild bee colonies and likely “bee trees” (large cavity trees)
+- Uses both local static data and live NYC Street Tree API pulls
+- Designed for NY Bee Club, researchers, land stewards, and city agencies
 
-Key features:
-
-Parsing and filtering large public datasets (e.g., street tree DBH, species)
-
-Interactive mapping of bee sightings with layered tree data
-
-User-defined markers for structures (e.g., sheds, buildings) as potential nest sites
-
-Data protection strategies to obscure precise hive locations
-
-Year-over-year tracking to identify long-term trends and ecological patterns
-
-Currently in development, bee_tree is intended as a resource for the New York Bee Club, with potential utility for city agencies like NYC Parks or academic partners focused on urban ecology and pollinator health.
-
-
-## Folder Structure
-```
+Project Structure
+-----------------
 bee_tree/
-├── data/
-│   ├── raw/
-│   │   └── 2015_Street_Tree_Census_-_Tree_Data_20250522.csv
-│   ├── processed/
-│   │   ├── bronx_trees.csv
-│   │   ├── bronx_trees.geojson
-│   │   ├── bronx_trees_filtered.geojson
-│   │   ├── brooklyn_trees.csv
-│   │   ├── brooklyn_trees.geojson
-│   │   ├── brooklyn_trees_filtered.geojson
-│   │   ├── manhattan_trees.csv
-│   │   ├── manhattan_trees.geojson
-│   │   ├── manhattan_trees_filtered.geojson
-│   │   ├── queens_trees.csv
-│   │   ├── queens_trees.geojson
-│   │   ├── queens_trees_filtered.geojson
-│   │   ├── staten_island_trees.csv
-│   │   ├── staten_island_trees.geojson
-│   │   ├── staten_island_trees_filtered.geojson
-│   │   └── full_boro_filtered.geojson
-├── docs/
-│   ├── StreetTreeCensus2015TreesDataDictionary20161102.pdf
-│   └── Bee Tree .txt
-├── scripts/
-│   ├── merge_filtered.py
+│
+├── data/                # Processed and raw data folders (local workflow)
+│
+├── scripts/             # All Python scripts for data prep, filtering, merging
 │   ├── sorter.py
 │   ├── refine.py
-│   └── refineDBH.py
-├── map.html
-└── project_notes.md
-```
+│   ├── refineDBH.py
+│   ├── merge_filtered.py
+│   ├── convert_tab.py
+│
+├── api_map.py           # (Was test.py) Script to pull filtered live data via API
+├── api_map.html         # (Was map.html) Demo Leaflet map using API GeoJSON
+│
+├── project_notes.md     # Ongoing project notes & progress tracker
+├── README.md            # This file
+│
+└── ...
 
-## Workflow
-1. **Split by Borough**  
-   Run `scripts/sorter.py` to extract trees for each borough from the full census CSV:
-   - Input: `data/raw/2015_Street_Tree_Census_-_Tree_Data_20250522.csv`
-   - Output: `data/processed/bronx_trees.csv`, `brooklyn_trees.csv`, `manhattan_trees.csv`, `queens_trees.csv`, `staten_island_trees.csv`
+Workflows
+---------
 
-2. **Convert to GeoJSON**  
-   Run `scripts/refine.py` to clean each borough CSV and convert it to GeoJSON:
-   - Input: `data/processed/<borough>_trees.csv`
-   - Output: `data/processed/<borough>_trees.geojson`
+1. API-Based Mapping (LIVE DATA)
+   - Uses NYC Open Data API to fetch trees matching DBH and species criteria.
+   - Outputs a lightweight GeoJSON file (trees_35_80cm.geojson).
+   - Visualized in browser using Leaflet in api_map.html.
 
-3. **Filter by Tree Diameter (DBH)**  
-   Run `scripts/refineDBH.py` to filter each borough's GeoJSON by DBH (default: 35–80 cm):
-   - Input: `data/processed/<borough>_trees.geojson`
-   - Output: `data/processed/<borough>_trees_filtered.geojson`
+   To run:
+   python api_map.py
+   # Outputs: trees_35_80cm.geojson
 
-4. **Merge All Filtered Boroughs**  
-   Run `scripts/merge_filtered.py` to combine all filtered borough GeoJSONs into one:
-   - Input: All `data/processed/<borough>_trees_filtered.geojson`
-   - Output: `data/processed/full_boro_filtered.geojson`
+   # Open api_map.html in a browser to view the map
 
-5. **View on Map**  
-   Start a local web server and open `map.html` to view all filtered trees together:
-   - `python -m http.server 8000`
-   - Open [http://localhost:8000/map.html](http://localhost:8000/map.html)
+2. Local Data Processing (STATIC DATA)
+   - Start with 2015 Street Tree Census CSV.
+   - Scripts for sorting by borough, cleaning, filtering by DBH/species, merging, and converting to GeoJSON.
+   - Optionally add NTA boundaries, etc.
 
-## Requirements
+   Typical steps:
+   python scripts/sorter.py        # Split raw data by borough
+   python scripts/refine.py        # Clean/convert to GeoJSON
+   python scripts/refineDBH.py     # Filter for likely bee trees
+   python scripts/merge_filtered.py# Merge boroughs for citywide
+   python scripts/convert_tab.py   # Optional: NTA boundary data
+
+   - Resulting GeoJSON files can be loaded into a Leaflet map.
+
+Dependencies
+------------
 - Python 3.x
 - pandas
-- numpy
-- geojson
 - geopandas
+- requests
+- geojson
+- shapely
+- matplotlib (for NTA plotting, optional)
 
-Install dependencies with:
-```
-pip install pandas numpy geojson geopandas
-```
+Install with:
+pip install pandas geopandas requests geojson shapely matplotlib
 
-## Documentation
-- See `docs/StreetTreeCensus2015TreesDataDictionary20161102.pdf` for data dictionary.
-- See `docs/Bee Tree .txt` for bee habitat notes.
+Roadmap
+-------
+- [x] Merged all workflows into main
+- [x] API-based, lightweight mapping prototype complete
+- [ ] Add user annotation, privacy safeguards
+- [ ] Pilot testing with NY Bee Club
+- [ ] Backend/database for submissions (future)
 
-## Notes
-- All scripts assume they are run from the `scripts/` directory.
-- Adjust DBH range in `refineDBH.py` as needed for your research.
+See project_notes.md for full details.
 
----
-
-## Features
-
-- Interactive Leaflet.js map (now supports all filtered boroughs, not just Staten Island)
-- All mapped locations derived from the NYC Street Tree Census
-- Easy visualization of tens of thousands of trees with popups for species, DBH, and address
-- Merged view of all boroughs for citywide analysis
-- Framework for future annotation/tagging by users (e.g., reporting bee trees, swarm trap sites)
-
----
-
-## How to Use
-
-1. **Clone or download the repo (no large data files included)**
-   ```sh
-   git clone https://github.com/glitch-bee/bee_tree.git
-2. **Add your own GeoJSON data file**
-
-The full dataset (staten_island_trees.geojson) is not tracked here (file too large for GitHub).
-
-You can generate this using the included refine.py script if you have the NYC Tree Census CSV.
-
-3. **Open a local web server in the project directory:**
-   python -m http.server 8000
-
-4. Map loads and displays all tree locations for all filtered boroughs (if you have the data in `full_boro_filtered.geojson`).
-
-
-
-For questions or collaboration, contact glitch-beez@gmail.com
+Contact: Usher (NY Bee Club)
+Last updated: 2025-05-30

@@ -20,7 +20,7 @@
       attribution: 'Map data © OpenStreetMap contributors'
     }).addTo(map);
 
-    fetch('full_boro_trees.geojson')
+    fetch('full_boro_filtered.geojson')
       .then(res => res.json())
       .then(data => {
         L.geoJSON(data, {

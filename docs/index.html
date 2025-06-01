@@ -20,9 +20,11 @@
   <script>
     var map = L.map('map').setView([40.75, -73.95], 11); // Center on NYC
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data © OpenStreetMap contributors'
-    }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://carto.com/">CARTO</a> contributors'
+}).addTo(map);
+
 
     // Color by species (example for a few common ones)
     function getColor(species) {
@@ -35,9 +37,6 @@
         default: return '#ff3366';
       }
     }
-
-    // Create a marker cluster group
-    var markers = L.markerClusterGroup();
 
     // Species color mapping
 function getColor(species) {
@@ -56,6 +55,9 @@ function getColor(species) {
     default: return '#ff3366'; // fallback
   }
 }
+
+    // Create a marker cluster group
+    var markers = L.markerClusterGroup();
 
     fetch('full_boro_filtered.geojson')
       .then(res => res.json())

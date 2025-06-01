@@ -24,15 +24,52 @@
       attribution: 'Map data © OpenStreetMap contributors'
     }).addTo(map);
 
+    // Color by species (example for a few common ones)
+    function getColor(species) {
+      switch (species) {
+        case 'Norway maple': return '#ff6600';
+        case 'sweetgum': return '#ffcc00';
+        case 'Callery pear': return '#00ccff';
+        case 'honeylocust': return '#00ff99';
+        case 'red maple': return '#ff33cc';
+        default: return '#ff3366';
+      }
+    }
+
     // Create a marker cluster group
     var markers = L.markerClusterGroup();
+
+    // Species color mapping
+function getColor(species) {
+  switch ((species || '').toLowerCase()) {
+    case 'norway maple': return '#ff6600';
+    case 'sweetgum': return '#ffcc00';
+    case 'callery pear': return '#00ccff';
+    case 'honeylocust': return '#00ff99';
+    case 'red maple': return '#ff33cc';
+    case 'london planetree': return '#8b5c2a';
+    case 'pin oak': return '#1e90ff';
+    case 'red oak': return '#b22222';
+    case 'silver maple': return '#cccccc';
+    case 'black locust': return '#004d00';
+    case 'american elm': return '#009966';
+    default: return '#ff3366'; // fallback
+  }
+}
 
     fetch('full_boro_filtered.geojson')
       .then(res => res.json())
       .then(data => {
         L.geoJSON(data, {
           pointToLayer: function(feature, latlng) {
-            return L.marker(latlng);
+            return L.circleMarker(latlng, {
+              radius: 5,
+              fillColor: getColor(feature.properties.spc_common),
+              color: getColor(feature.properties.spc_common),
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8
+            });
           },
           onEachFeature: function(feature, layer) {
             let p = feature.properties;
@@ -44,5 +81,21 @@
         map.addLayer(markers);
       });
   </script>
+
+<div id="legend" style="position: absolute; bottom: 30px; left: 10px; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 8px; font-size: 14px; z-index: 1000;">
+  <strong>Tree Species</strong><br>
+  <span style="color:#ff6600;">&#9679;</span> Norway maple<br>
+  <span style="color:#ffcc00;">&#9679;</span> Sweetgum<br>
+  <span style="color:#00ccff;">&#9679;</span> Callery pear<br>
+  <span style="color:#00ff99;">&#9679;</span> Honeylocust<br>
+  <span style="color:#ff33cc;">&#9679;</span> Red maple<br>
+  <span style="color:#8b5c2a;">&#9679;</span> London planetree<br>
+  <span style="color:#1e90ff;">&#9679;</span> Pin oak<br>
+  <span style="color:#b22222;">&#9679;</span> Red oak<br>
+  <span style="color:#cccccc;">&#9679;</span> Silver maple<br>
+  <span style="color:#004d00;">&#9679;</span> Black locust<br>
+  <span style="color:#009966;">&#9679;</span> American elm<br>
+  <span style="color:#ff3366;">&#9679;</span> Other
+</div>
 </body>
 </html>

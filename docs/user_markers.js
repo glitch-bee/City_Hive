@@ -135,8 +135,10 @@ window.map.on('popupopen', function(e) {
       // Remove from userTrees and update localStorage
       window.userTrees = window.userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
-      drawUserMarkers();
+      // Remove all popups before redrawing
       window.map.closePopup();
+      // Redraw after popup closes to avoid race with Leaflet
+      setTimeout(drawUserMarkers, 200);
     };
   }
 });

@@ -126,9 +126,14 @@ addTreeForm.querySelector('button[type="button"]').onclick = function() {
 window.map.on('popupopen', function(e) {
   var btn = e.popup._contentNode.querySelector('.delete-marker-btn');
   if (btn) {
-    btn.onclick = function() {
+    // Prevent Leaflet from closing the popup on button click
+    L.DomEvent.disableClickPropagation(btn);
+    btn.onclick = function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
       var markerId = btn.getAttribute('data-id');
-      window.userTrees = window.userTrees.filter(t => t.id !== markerId);
+      // Remove from userTrees and update localStorage
+      window.userTrees = window.userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
       drawUserMarkers();
       window.map.closePopup();

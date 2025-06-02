@@ -128,7 +128,7 @@ window.map.on('popupopen', function(e) {
   if (btn) {
     // Prevent Leaflet from closing the popup on button click
     L.DomEvent.disableClickPropagation(btn);
-    btn.onclick = function(ev) {
+    btn.addEventListener('click', function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
       var markerId = btn.getAttribute('data-id');
@@ -139,6 +139,6 @@ window.map.on('popupopen', function(e) {
       window.map.closePopup();
       // Redraw after popup closes to avoid race with Leaflet
       setTimeout(drawUserMarkers, 200);
-    };
+    });
   }
 });

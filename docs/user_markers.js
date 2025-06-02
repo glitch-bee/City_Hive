@@ -1,4 +1,4 @@
-// --- User Marker Logic (cleaned & working Delete) ---
+// --- User Marker Logic (cleaned & working Delete, no species/dbh) ---
 function getPulseColor(type) {
   switch ((type || '').toLowerCase()) {
     case 'swarm': return "#ff6e44";
@@ -48,11 +48,9 @@ function drawUserMarkers() {
       fillOpacity: 0.85
     }).addTo(window.map);
 
-    // Popup text – dynamic title, fields only if present, correct type
+    // Popup text – just type and delete button
     let displayType = tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : "Hive";
     let popup = `<strong>User ${displayType}</strong><br>`;
-    if (tree.species && tree.type !== "structure") popup += `Species: ${tree.species}<br>`;
-    if (tree.dbh && tree.type !== "structure") popup += `DBH: ${tree.dbh} cm<br>`;
     popup += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
 
     marker.bindPopup(popup);
@@ -108,12 +106,10 @@ placeHereBtn.addEventListener('keydown', function(e) {
 addTreeForm.onsubmit = function(ev) {
   ev.preventDefault();
   var type = document.getElementById('typeInput').value;
-  var species = document.getElementById('speciesInput').value;
-  var dbh = document.getElementById('dbhInput').value;
   var lat = parseFloat(document.getElementById('latInput').value);
   var lng = parseFloat(document.getElementById('lngInput').value);
   var id = Date.now() + Math.random().toString(36).substr(2, 5);
-  var newTree = { id, lat, lng, species, dbh, type };
+  var newTree = { id, lat, lng, type };
   window.userTrees.push(newTree);
   saveUserTrees();
   drawUserMarkers();

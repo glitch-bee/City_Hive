@@ -104,21 +104,14 @@
         <option value="tree">Tree</option>
         <option value="structure">Structure</option>
       </select>
-
- id="typeInput">
-        <option value="hive">Hive</option>
-        <option value="swarm">Swarm</option>
-      </select>
     </label><br>
-    <label>Species: <input type="text" id="speciesInput"></label><br>
-    <label>DBH (cm): <input type="number" id="dbhInput" min="0"></label><br>
     <input type="hidden" id="latInput">
     <input type="hidden" id="lngInput">
-    <button type="submit">Add Tree</button>
+    <button type="submit">Add</button>
     <button type="button" onclick="document.getElementById('addTreeForm').style.display='none'">Cancel</button>
   </form>
   <div id="legend">
-    <strong>Tree Species</strong><br>
+    <strong>Legend</strong><br>
     <span style="color:#ff6600;">&#9679;</span> Norway maple<br>
     <span style="color:#ffcc00;">&#9679;</span> Sweetgum<br>
     <span style="color:#00ccff;">&#9679;</span> Callery pear<br>

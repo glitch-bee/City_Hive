@@ -1,0 +1,3 @@
+<script>
+    // ...utility functions (e.g., getColor, save/load localStorage, helpers)...
+  </script>

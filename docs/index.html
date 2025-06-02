@@ -157,8 +157,8 @@
       spiderfyOnMaxZoom: true
     });
 
-    // Load GeoJSON (filtered citywide trees)
-    fetch('full_boro_filtered.geojson')
+    // Load GeoJSON (filtered citywide trees) with cache-busting query param
+    fetch('full_boro_filtered.geojson?v=' + new Date().getTime())
       .then(res => res.json())
       .then(data => {
         L.geoJSON(data, {

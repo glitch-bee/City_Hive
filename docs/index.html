@@ -87,7 +87,6 @@
   <h3 style="margin-left: 14px;">bee_tree</h3>
   <button id="addTreeBtn" title="Add a new annotation">+ Add Tree</button>
   <div id="crosshair">
-    <!-- SVG Crosshair for visibility -->
     <svg width="36" height="36">
       <circle cx="18" cy="18" r="13" stroke="#00b894" stroke-width="2.5" fill="none"/>
       <line x1="18" y1="6" x2="18" y2="30" stroke="#00b894" stroke-width="2"/>
@@ -98,6 +97,12 @@
   <div id="map"></div>
   <!-- User Tree Input Form -->
   <form id="addTreeForm">
+    <label>Type:
+      <select id="typeInput">
+        <option value="hive">Hive</option>
+        <option value="swarm">Swarm</option>
+      </select>
+    </label><br>
     <label>Species: <input type="text" id="speciesInput"></label><br>
     <label>DBH (cm): <input type="number" id="dbhInput" min="0"></label><br>
     <input type="hidden" id="latInput">
@@ -119,7 +124,8 @@
     <span style="color:#004d00;">&#9679;</span> Black locust<br>
     <span style="color:#009966;">&#9679;</span> American elm<br>
     <span style="color:#ff3366;">&#9679;</span> Other<br>
-    <span style="color:#00ff00;">&#9679;</span> User Added
+    <span style="color:#6e44ff;">&#9679;</span> User Hive<br>
+    <span style="color:#ff6e44;">&#9679;</span> User Swarm
   </div>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
@@ -191,17 +197,29 @@
 
     var userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
 
-    // Draw saved user markers
+    // Draw saved user markers (pulse circle + marker)
     userTrees.forEach(function(tree) {
-      var marker = L.circleMarker([tree.lat, tree.lng], {
-        radius: 6,
-        fillColor: '#00ff00',
-        color: '#00ff00',
+      var pulseColor = tree.type === "swarm" ? "#ff6e44" : "#6e44ff";
+      // Draw the pulse radius
+      L.circle([tree.lat, tree.lng], {
+        radius: 60,
+        color: pulseColor,
+        fillColor: pulseColor,
+        fillOpacity: 0.18,
         weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
+        opacity: 0.35,
+        interactive: false
       }).addTo(map);
-      var popup = '<strong>User Tree</strong><br>';
+      // Draw the marker on top
+      var marker = L.circleMarker([tree.lat, tree.lng], {
+        radius: 7,
+        fillColor: pulseColor,
+        color: pulseColor,
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.85
+      }).addTo(map);
+      var popup = '<strong>User Tree</strong><br>Type: ' + (tree.type || 'hive') + '<br>';
       if (tree.species) popup += 'Species: ' + tree.species + '<br>';
       if (tree.dbh) popup += 'DBH: ' + tree.dbh + ' cm<br>';
       marker.bindPopup(popup);
@@ -220,7 +238,6 @@
         addTreeBtn.classList.add('adding');
         crosshair.style.display = 'block';
         placeHereBtn.style.display = 'block';
-        // Optionally: focus map so keyboard pans work
         map._container.focus();
       } else {
         cancelAddMode();
@@ -244,7 +261,6 @@
       cancelAddMode();
     };
 
-    // Prevent accidental "Enter" from submitting add mode
     placeHereBtn.addEventListener('keydown', function(e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -254,32 +270,46 @@
     // Handle user annotation form submission
     addTreeForm.onsubmit = function(ev) {
       ev.preventDefault();
+      var type = document.getElementById('typeInput').value;
       var species = document.getElementById('speciesInput').value;
       var dbh = document.getElementById('dbhInput').value;
       var lat = parseFloat(document.getElementById('latInput').value);
       var lng = parseFloat(document.getElementById('lngInput').value);
 
-      var marker = L.circleMarker([lat, lng], {
-        radius: 6,
-        fillColor: '#00ff00',
-        color: '#00ff00',
+      var pulseColor = type === "swarm" ? "#ff6e44" : "#6e44ff";
+
+      // Draw pulse radius
+      L.circle([lat, lng], {
+        radius: 60,
+        color: pulseColor,
+        fillColor: pulseColor,
+        fillOpacity: 0.18,
         weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
+        opacity: 0.35,
+        interactive: false
       }).addTo(map);
 
-      var popup = '<strong>User Tree</strong><br>';
+      // Draw marker
+      var marker = L.circleMarker([lat, lng], {
+        radius: 7,
+        fillColor: pulseColor,
+        color: pulseColor,
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 0.85
+      }).addTo(map);
+
+      var popup = '<strong>User Tree</strong><br>Type: ' + type.charAt(0).toUpperCase() + type.slice(1) + '<br>';
       if (species) popup += 'Species: ' + species + '<br>';
       if (dbh) popup += 'DBH: ' + dbh + ' cm<br>';
       marker.bindPopup(popup);
 
-      userTrees.push({lat, lng, species, dbh});
+      userTrees.push({lat, lng, species, dbh, type});
       saveUserTrees();
       addTreeForm.reset();
       addTreeForm.style.display = 'none';
     };
 
-    
     // Cancel button resets mode
     addTreeForm.querySelector('button[type="button"]').onclick = function() {
       addTreeForm.style.display = 'none';
@@ -287,19 +317,15 @@
 
     // Disable cluster click-to-zoom (uncluster only on zoom level)
     markers.on('clusterclick', function (a) {
-      // Prevent zooming to bounds
       a.originalEvent.preventDefault();
     });
 
-    // Make sure map still works with touch/mouse/keyboard
     map.on('movestart', function() {
       if (addingMode) {
-        // Keep crosshair centered even while panning/zooming
         crosshair.style.display = 'block';
       }
     });
 
-    // Optional: Exit add mode on ESC (desktop)
     document.addEventListener('keydown', function(e) {
       if (addingMode && e.key === "Escape") {
         cancelAddMode();
@@ -307,34 +333,33 @@
     });
 
     // Add a simple 'Locate Me' button
-var locateBtn = L.control({position: 'topleft'});
-locateBtn.onAdd = function(map) {
-    var btn = L.DomUtil.create('button', 'leaflet-bar');
-    btn.innerHTML = '📍';
-    btn.title = 'Show My Location';
-    btn.style.background = '#fff';
-    btn.style.padding = '6px 10px';
-    btn.style.fontSize = '18px';
-    btn.onclick = function() {
+    var locateBtn = L.control({position: 'topleft'});
+    locateBtn.onAdd = function(map) {
+      var btn = L.DomUtil.create('button', 'leaflet-bar');
+      btn.innerHTML = '📍';
+      btn.title = 'Show My Location';
+      btn.style.background = '#fff';
+      btn.style.padding = '6px 10px';
+      btn.style.fontSize = '18px';
+      btn.onclick = function() {
         map.locate({setView: true, maxZoom: 17});
+      };
+      return btn;
     };
-    return btn;
-};
-locateBtn.addTo(map);
+    locateBtn.addTo(map);
 
-// Show the marker when location is found
-map.on('locationfound', function(e) {
-    if (window._myloc) map.removeLayer(window._myloc);
-    window._myloc = L.circleMarker(e.latlng, {
+    // Show the marker when location is found
+    map.on('locationfound', function(e) {
+      if (window._myloc) map.removeLayer(window._myloc);
+      window._myloc = L.circleMarker(e.latlng, {
         radius: 10, fillColor: '#3399ff', color: '#3399ff',
         fillOpacity: 0.4, weight: 2
-    }).addTo(map).bindPopup('You are here').openPopup();
-});
-// Optionally, handle errors
-map.on('locationerror', function(e) {
-    alert('Unable to access your location.');
-});
+      }).addTo(map).bindPopup('You are here').openPopup();
+    });
 
+    map.on('locationerror', function(e) {
+      alert('Unable to access your location.');
+    });
   </script>
 </body>
 </html>

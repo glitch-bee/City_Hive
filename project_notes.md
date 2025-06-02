@@ -25,6 +25,7 @@ bee_tree is a browser-based dashboard to map feral honey bee sightings and likel
 ## **To Do / Next Steps**
 
 ### **Core Mapping/Data:**
+
 - [ ] **Add Staten Island trees to citywide GeoJSON (verify all boroughs are present)**
 - [ ] **Improve species and DBH filtering if needed (optionally make dynamic)**
 - [ ] **Support additional “structure” annotations (e.g., sheds, walls) in UI**
@@ -41,15 +42,15 @@ bee_tree is a browser-based dashboard to map feral honey bee sightings and likel
 - [ ] **Enable “historical” layers or views (compare sightings/trees over time)**
 
 ### **UI/UX Improvements:**
-- [ ] **Streamline annotation form and controls for clarity**
-- [ ] **Polish legend and on-map instructions**
-- [ ] **Make UI consistent and mobile-first**
-- [ ] **Optionally add structure/hive icons for other feature types**
+ [ ] **Streamline annotation form and controls for clarity**
+ [ ] **Polish legend and on-map instructions**
+ [ ] **Make UI consistent and mobile-first**
+ [ ] **Optionally add structure/hive icons for other feature types**
 
 ### **Pilot & Feedback:**
-- [ ] **Invite NYBC members for pilot testing**
-- [ ] **Collect feedback on usability, performance, and privacy**
-- [ ] **Iterate: address bugs, clarify instructions, simplify where needed**
+ [ ] **Invite NYBC members for pilot testing**
+ [ ] **Collect feedback on usability, performance, and privacy**
+ [ ] **Iterate: address bugs, clarify instructions, simplify where needed**
 
 ---
 
@@ -65,10 +66,10 @@ bee_tree is a browser-based dashboard to map feral honey bee sightings and likel
 
 ## **Tech Notes**
 
-- **Data file**: `full_boro_filtered.geojson` in the `docs` directory
-- **Frontend**: `index.html` (or `docs/index.html` for static hosting)
-- **Local user markers**: stored via `localStorage` as `userTrees`
-- **Cluster behavior**: clusters only break up by zoom (not by click)
+- **Data file:** `full_boro_filtered.geojson` in the `docs` directory
+- **Frontend:** `index.html` (or `docs/index.html` for static hosting)
+- **Local user markers:** stored via `localStorage` as `userTrees`
+- **Cluster behavior:** clusters only break up by zoom (not by click)
 - **No backend required for MVP**
 
 ---

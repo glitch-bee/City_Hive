@@ -1,5 +1,4 @@
-// --- User Tree/Structure Annotation: Add Mode with Crosshair ---
-// Utility to get color by type
+// --- User Marker Logic (cleaned & working Delete) ---
 function getPulseColor(type) {
   switch ((type || '').toLowerCase()) {
     case 'swarm': return "#ff6e44";
@@ -14,20 +13,22 @@ function saveUserTrees() {
   localStorage.setItem('userTrees', JSON.stringify(window.userTrees));
 }
 
-// Initialize user tree array from storage, or empty
 window.userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
 
-// Function to (re)draw all user markers (pulse + marker)
-function drawUserMarkers() {
-  // Remove any existing user marker layers
+// Remove all previous marker layers
+function clearUserMarkersFromMap() {
   if (window._userMarkerLayers) {
     window._userMarkerLayers.forEach(layer => window.map.removeLayer(layer));
   }
   window._userMarkerLayers = [];
+}
 
+// Draw user markers
+function drawUserMarkers() {
+  clearUserMarkersFromMap();
   window.userTrees.forEach(function(tree) {
     var pulseColor = getPulseColor(tree.type);
-    // Draw the pulse radius
+    // Pulse
     var pulse = L.circle([tree.lat, tree.lng], {
       radius: 60,
       color: pulseColor,
@@ -37,8 +38,7 @@ function drawUserMarkers() {
       opacity: 0.35,
       interactive: false
     }).addTo(window.map);
-
-    // Draw the marker on top
+    // Marker
     var marker = L.circleMarker([tree.lat, tree.lng], {
       radius: 7,
       fillColor: pulseColor,
@@ -48,21 +48,21 @@ function drawUserMarkers() {
       fillOpacity: 0.85
     }).addTo(window.map);
 
-    // Build popup with delete button and details
-    var popup = `<strong>User Marker</strong><br>
-      Type: ${tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : 'Hive'}<br>
-      ${tree.species ? "Species: " + tree.species + "<br>" : ""}
-      ${tree.dbh ? "DBH: " + tree.dbh + " cm<br>" : ""}
-      <button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
+    // Popup text – dynamic title, fields only if present, correct type
+    let displayType = tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : "Hive";
+    let popup = `<strong>User ${displayType}</strong><br>`;
+    if (tree.species && tree.type !== "structure") popup += `Species: ${tree.species}<br>`;
+    if (tree.dbh && tree.type !== "structure") popup += `DBH: ${tree.dbh} cm<br>`;
+    popup += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
 
     marker.bindPopup(popup);
 
-    // Track layers for later removal
+    // Save for later removal
     window._userMarkerLayers.push(pulse, marker);
   });
 }
 
-// Draw user markers initially
+// Initial draw
 drawUserMarkers();
 
 // Add Mode Logic
@@ -91,7 +91,6 @@ function cancelAddMode() {
   placeHereBtn.style.display = 'none';
 }
 
-// Place here button logic
 placeHereBtn.onclick = function() {
   if (!window.addingMode) return;
   var center = window.map.getCenter();
@@ -102,12 +101,10 @@ placeHereBtn.onclick = function() {
 };
 
 placeHereBtn.addEventListener('keydown', function(e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-  }
+  if (e.key === "Enter") e.preventDefault();
 });
 
-// Handle user annotation form submission
+// --- Form Submission ---
 addTreeForm.onsubmit = function(ev) {
   ev.preventDefault();
   var type = document.getElementById('typeInput').value;
@@ -115,38 +112,28 @@ addTreeForm.onsubmit = function(ev) {
   var dbh = document.getElementById('dbhInput').value;
   var lat = parseFloat(document.getElementById('latInput').value);
   var lng = parseFloat(document.getElementById('lngInput').value);
-
-  // Assign unique id to each marker
   var id = Date.now() + Math.random().toString(36).substr(2, 5);
-
   var newTree = { id, lat, lng, species, dbh, type };
-
-  // Add to user tree array
   window.userTrees.push(newTree);
   saveUserTrees();
-
-  // Redraw all markers
   drawUserMarkers();
-
   addTreeForm.reset();
   addTreeForm.style.display = 'none';
 };
 
-// Cancel button resets mode
+// Cancel button
 addTreeForm.querySelector('button[type="button"]').onclick = function() {
   addTreeForm.style.display = 'none';
 };
 
-// Listen for Delete button clicks in user marker popups
+// --- Delete Button Logic ---
 window.map.on('popupopen', function(e) {
   var btn = e.popup._contentNode.querySelector('.delete-marker-btn');
   if (btn) {
     btn.onclick = function() {
       var markerId = btn.getAttribute('data-id');
-      // Remove from localStorage
       window.userTrees = window.userTrees.filter(t => t.id !== markerId);
       saveUserTrees();
-      // Redraw all markers
       drawUserMarkers();
       window.map.closePopup();
     };

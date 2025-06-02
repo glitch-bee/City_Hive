@@ -1,97 +1,82 @@
-# Bee Tree and Swarm Trap Mapping – Project Plan
+# bee_tree Project Notes (MVP Status, June 2025)
 
 ## Overview
 
-bee_tree is a browser-based dashboard for mapping feral honey bee sightings and potential nest sites in NYC, visualizing these in relation to urban forestry data. It uses Python for data processing and Leaflet.js for interactive mapping, integrating open datasets like the NYC Street Tree Census.
+bee_tree is a browser-based dashboard to map feral honey bee sightings and likely cavity trees in NYC, visualized against city tree census data. Built for the NY Bee Club, researchers, and land stewards.  
+**Tech stack:** Python (data prep), Leaflet.js (frontend map), no backend (MVP), user annotation with localStorage.
 
 ---
 
-## Goals
+## **Current Features**
 
-- **Map wild bee colonies and swarm trap sites across NYC**
-- **Support privacy, ecological responsibility, and stewardship**
-- **Enable user annotation and year-over-year tracking**
-- **Prepare for collaboration with NY Bee Club, city agencies, and researchers**
-
----
-
-## Project Stages & Status
-
-### 1. Data Preparation
-- [x] Filtered and cleaned NYC Tree Census data for all boroughs
-- [x] Converted CSVs to GeoJSON for mapping
-- [x] Merged borough data for citywide analysis
-- [ ] (Optional) Further filter by species and DBH for “likely bee trees”
-
-### 2. Basic Mapping Prototype
-- [x] Built Leaflet.js map displaying all Staten Island trees as points using local GeoJSON
-- [x] Tested map performance with the full dataset (105k+ points)
-- [ ] Add clustering or filters if needed for performance/usability
+- **Map all citywide trees (DBH 35–80cm) as clustered, color-coded points**
+- **“Add Tree” mode with crosshair UI (mobile & desktop friendly):**
+  - Click “Add Tree,” pan/zoom so the crosshair sits on the spot, tap “Place Here”
+  - Fill out species/DBH form, confirm to save
+  - All user-added trees shown in bright green
+  - **User annotations persist via localStorage** (per device)
+- **Legend explaining species color codes and user markers**
+- **Performance: MarkerCluster used, no cluster-zoom on click (unclusters only on zoom-in)**
+- **Modern, muted basemap (CartoDB Positron) for visual clarity**
+- **Works from static hosting (e.g. GitHub Pages, no server required)**
 
 ---
 
-### **NEW: API-Based Prototype (2025-05-28)**
-- [x] Developed a lightweight script to query the NYC Street Tree Census API directly for filtered data (e.g., trees with DBH between 35–80 cm)
-- [x] Outputs GeoJSON suitable for mapping in Leaflet.js
-- [x] Added a new proof-of-concept `treetest` directory with `test.py`, `map.html`, and sample GeoJSON output
-- [x] Confirmed the API approach keeps data lightweight and current without requiring local bulk files
-- [ ] (Planned) Expand API usage for more dynamic queries and possibly direct-to-frontend (JavaScript-based) filtering
+## **To Do / Next Steps**
+
+### **Core Mapping/Data:**
+- [ ] **Add Staten Island trees to citywide GeoJSON (verify all boroughs are present)**
+- [ ] **Improve species and DBH filtering if needed (optionally make dynamic)**
+- [ ] **Support additional “structure” annotations (e.g., sheds, walls) in UI**
+
+### **User Annotation/Interaction:**
+- [ ] **Enable deleting user-added trees (remove single points from localStorage/UI)**
+- [ ] **Add “Clear All” option for user annotations (reset localStorage)**
+- [ ] **Optionally support export/import of user annotations (share or backup local points)**
+- [ ] **(Future) Support backend or shared annotation features (Firebase/Supabase/etc.)**
+
+### **Data Tracking/Trends:**
+- [ ] **Develop a time-stamped user annotation system (track when/what was added)**
+- [ ] **Design methods to visualize trends (e.g., heatmaps, time sliders, year-over-year change)**
+- [ ] **Enable “historical” layers or views (compare sightings/trees over time)**
+
+### **UI/UX Improvements:**
+- [ ] **Streamline annotation form and controls for clarity**
+- [ ] **Polish legend and on-map instructions**
+- [ ] **Make UI consistent and mobile-first**
+- [ ] **Optionally add structure/hive icons for other feature types**
+
+### **Pilot & Feedback:**
+- [ ] **Invite NYBC members for pilot testing**
+- [ ] **Collect feedback on usability, performance, and privacy**
+- [ ] **Iterate: address bugs, clarify instructions, simplify where needed**
 
 ---
 
-### 3. User Input and Annotation
-- [x] Basic form for adding user markers (bee trees, swarm traps)
-- [ ] Persist user input (localStorage, downloadable file, or backend)
-- [ ] Allow marker categories and notes
-- [ ] Link user-submitted locations back to the map for review
+## **Known Issues**
 
-### 4. Privacy and Safeguards
-- [ ] Obscure precise hive locations (e.g., round/jitter coordinates)
-- [ ] Anonymize all user submissions (no names/emails in public views)
-- [ ] Include stewardship guidelines and privacy reminders in UI
-- [ ] (Optional) Moderate or approve tags before adding to the map
-
-### 5. Pilot Testing
-- [ ] Invite NYBC members for pilot testing
-- [ ] Collect feedback on usability, privacy, and educational value
-- [ ] Iterate and improve based on feedback
-
-### 6. Expansion Planning
-- [ ] Plan for full NYC rollout and scalable backend
-- [ ] Explore backend/database options (Firebase, Supabase, etc.)
-- [ ] Draft additional educational resources and outreach materials
+- User annotations are local-only (cannot sync across devices or users yet)
+- UI for deleting/editing user markers is not present (coming soon)
+- Staten Island data missing (need to merge into citywide file)
+- “Trend” features and tracking are not yet implemented
+- UI/legend polish needed before broader release
 
 ---
 
-## Technical Stack
+## **Tech Notes**
 
-- **Frontend:** Leaflet.js (interactive map)
-- **Data:** Cleaned CSV and GeoJSON for tree data;  
-  **NEW:** Direct API queries for real-time, filtered tree data (see `treetest/`)
-- **Backend (future):** Firebase, Supabase, Airtable, or other cloud database for submissions and real-time updates
-
----
-
-## Risks and Considerations
-
-- Browser performance with large datasets
-- User privacy and property rights
-- Ecological responsibility (protect wild colonies)
-- Need for moderation as project scales
+- **Data file**: `full_boro_filtered.geojson` in the `docs` directory
+- **Frontend**: `index.html` (or `docs/index.html` for static hosting)
+- **Local user markers**: stored via `localStorage` as `userTrees`
+- **Cluster behavior**: clusters only break up by zoom (not by click)
+- **No backend required for MVP**
 
 ---
 
-## Next Steps
-
-- [x] Finalize citywide data filtering/cleaning scripts
-- [x] Set up local project folder and documentation
-- [ ] Create and push to private GitHub repo
-- [x] Add this plan and documentation to the repo
-- [x] **Develop and test API-based mapping workflow (see `treetest/`)**
-- [ ] Begin experimenting with user input and annotation features
-
----
-
-**Prepared by:**  
+## **Contacts / Lead**
 Usher  
-5.22.25 (updated 5.28.25)
+NY Bee Club  
+Last updated: 2025-06-01
+
+---
+

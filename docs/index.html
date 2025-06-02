@@ -158,7 +158,7 @@
     });
 
     // Load GeoJSON (filtered citywide trees)
-    fetch('docs/full_boro_filtered.geojson')
+    fetch('full_boro_filtered.geojson')
       .then(res => res.json())
       .then(data => {
         L.geoJSON(data, {

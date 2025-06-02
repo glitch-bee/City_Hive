@@ -1,37 +1,69 @@
-// --- User Tree Annotation: Add Mode with Crosshair ---
+// --- User Tree/Structure Annotation: Add Mode with Crosshair ---
+// Utility to get color by type
+function getPulseColor(type) {
+  switch ((type || '').toLowerCase()) {
+    case 'swarm': return "#ff6e44";
+    case 'hive': return "#6e44ff";
+    case 'tree': return "#44ff6e";
+    case 'structure': return "#ffaa00";
+    default: return "#6e44ff";
+  }
+}
+
 function saveUserTrees() {
   localStorage.setItem('userTrees', JSON.stringify(window.userTrees));
 }
 
+// Initialize user tree array from storage, or empty
 window.userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
 
-// Draw saved user markers (pulse circle + marker)
-window.userTrees.forEach(function(tree) {
-  var pulseColor = tree.type === "swarm" ? "#ff6e44" : "#6e44ff";
-  // Draw the pulse radius
-  L.circle([tree.lat, tree.lng], {
-    radius: 60,
-    color: pulseColor,
-    fillColor: pulseColor,
-    fillOpacity: 0.18,
-    weight: 1,
-    opacity: 0.35,
-    interactive: false
-  }).addTo(window.map);
-  // Draw the marker on top
-  var marker = L.circleMarker([tree.lat, tree.lng], {
-    radius: 7,
-    fillColor: pulseColor,
-    color: pulseColor,
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 0.85
-  }).addTo(window.map);
-  var popup = '<strong>User Tree</strong><br>Type: ' + (tree.type || 'hive') + '<br>';
-  if (tree.species) popup += 'Species: ' + tree.species + '<br>';
-  if (tree.dbh) popup += 'DBH: ' + tree.dbh + ' cm<br>';
-  marker.bindPopup(popup);
-});
+// Function to (re)draw all user markers (pulse + marker)
+function drawUserMarkers() {
+  // Remove any existing user marker layers
+  if (window._userMarkerLayers) {
+    window._userMarkerLayers.forEach(layer => window.map.removeLayer(layer));
+  }
+  window._userMarkerLayers = [];
+
+  window.userTrees.forEach(function(tree) {
+    var pulseColor = getPulseColor(tree.type);
+    // Draw the pulse radius
+    var pulse = L.circle([tree.lat, tree.lng], {
+      radius: 60,
+      color: pulseColor,
+      fillColor: pulseColor,
+      fillOpacity: 0.18,
+      weight: 1,
+      opacity: 0.35,
+      interactive: false
+    }).addTo(window.map);
+
+    // Draw the marker on top
+    var marker = L.circleMarker([tree.lat, tree.lng], {
+      radius: 7,
+      fillColor: pulseColor,
+      color: pulseColor,
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.85
+    }).addTo(window.map);
+
+    // Build popup with delete button and details
+    var popup = `<strong>User Marker</strong><br>
+      Type: ${tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : 'Hive'}<br>
+      ${tree.species ? "Species: " + tree.species + "<br>" : ""}
+      ${tree.dbh ? "DBH: " + tree.dbh + " cm<br>" : ""}
+      <button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
+
+    marker.bindPopup(popup);
+
+    // Track layers for later removal
+    window._userMarkerLayers.push(pulse, marker);
+  });
+}
+
+// Draw user markers initially
+drawUserMarkers();
 
 // Add Mode Logic
 window.addingMode = false;
@@ -84,36 +116,18 @@ addTreeForm.onsubmit = function(ev) {
   var lat = parseFloat(document.getElementById('latInput').value);
   var lng = parseFloat(document.getElementById('lngInput').value);
 
-  var pulseColor = type === "swarm" ? "#ff6e44" : "#6e44ff";
+  // Assign unique id to each marker
+  var id = Date.now() + Math.random().toString(36).substr(2, 5);
 
-  // Draw pulse radius
-  L.circle([lat, lng], {
-    radius: 60,
-    color: pulseColor,
-    fillColor: pulseColor,
-    fillOpacity: 0.18,
-    weight: 1,
-    opacity: 0.35,
-    interactive: false
-  }).addTo(window.map);
+  var newTree = { id, lat, lng, species, dbh, type };
 
-  // Draw marker
-  var marker = L.circleMarker([lat, lng], {
-    radius: 7,
-    fillColor: pulseColor,
-    color: pulseColor,
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 0.85
-  }).addTo(window.map);
-
-  var popup = '<strong>User Tree</strong><br>Type: ' + type.charAt(0).toUpperCase() + type.slice(1) + '<br>';
-  if (species) popup += 'Species: ' + species + '<br>';
-  if (dbh) popup += 'DBH: ' + dbh + ' cm<br>';
-  marker.bindPopup(popup);
-
-  window.userTrees.push({lat, lng, species, dbh, type});
+  // Add to user tree array
+  window.userTrees.push(newTree);
   saveUserTrees();
+
+  // Redraw all markers
+  drawUserMarkers();
+
   addTreeForm.reset();
   addTreeForm.style.display = 'none';
 };
@@ -122,3 +136,19 @@ addTreeForm.onsubmit = function(ev) {
 addTreeForm.querySelector('button[type="button"]').onclick = function() {
   addTreeForm.style.display = 'none';
 };
+
+// Listen for Delete button clicks in user marker popups
+window.map.on('popupopen', function(e) {
+  var btn = e.popup._contentNode.querySelector('.delete-marker-btn');
+  if (btn) {
+    btn.onclick = function() {
+      var markerId = btn.getAttribute('data-id');
+      // Remove from localStorage
+      window.userTrees = window.userTrees.filter(t => t.id !== markerId);
+      saveUserTrees();
+      // Redraw all markers
+      drawUserMarkers();
+      window.map.closePopup();
+    };
+  }
+});

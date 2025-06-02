@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
   <style>
+    body { margin: 0; padding: 0; }
     #map { height: 90vh; width: 100vw; }
     #legend {
       position: absolute;
@@ -39,27 +40,64 @@
       color: #222;
       cursor: crosshair;
     }
-    #instructionBox {
+    #crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 36px;
+      height: 36px;
+      margin-left: -18px;
+      margin-top: -18px;
+      z-index: 1201;
+      pointer-events: none;
+      display: none;
+      opacity: 0.7;
+    }
+    #placeHereBtn {
       position: absolute;
       top: 60px;
-      left: 10px;
-      z-index: 1200;
-      background: rgba(255,255,255,0.92);
-      color: #222;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1201;
       display: none;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 16px;
+      box-shadow: 1px 2px 10px rgba(0,0,0,0.14);
+      opacity: 0.94;
+    }
+    #addTreeForm {
+      position:absolute;
+      top:120px;
+      left:10px;
+      z-index:1300;
+      background:#222;
+      padding:14px 18px;
+      color:#fff;
+      display:none;
+      border-radius:10px;
+      box-shadow:1px 2px 10px rgba(0,0,0,0.16);
     }
   </style>
 </head>
 <body>
   <h3 style="margin-left: 14px;">bee_tree</h3>
-  <button id="addTreeBtn" title="Click, then pick a spot on the map">+ Add Tree</button>
-  <div id="instructionBox">Click on the map to place your new annotation. <br>Zoom in for accuracy!</div>
+  <button id="addTreeBtn" title="Add a new annotation">+ Add Tree</button>
+  <div id="crosshair">
+    <!-- SVG Crosshair for visibility -->
+    <svg width="36" height="36">
+      <circle cx="18" cy="18" r="13" stroke="#00b894" stroke-width="2.5" fill="none"/>
+      <line x1="18" y1="6" x2="18" y2="30" stroke="#00b894" stroke-width="2"/>
+      <line x1="6" y1="18" x2="30" y2="18" stroke="#00b894" stroke-width="2"/>
+    </svg>
+  </div>
+  <button id="placeHereBtn">Place Here</button>
   <div id="map"></div>
   <!-- User Tree Input Form -->
-  <form id="addTreeForm" style="position:absolute;top:120px;left:10px;z-index:1300;background:#222;padding:14px 18px;color:#fff;display:none;border-radius:10px;box-shadow:1px 2px 10px rgba(0,0,0,0.16);">
+  <form id="addTreeForm">
     <label>Species: <input type="text" id="speciesInput"></label><br>
     <label>DBH (cm): <input type="number" id="dbhInput" min="0"></label><br>
     <input type="hidden" id="latInput">
@@ -113,8 +151,11 @@
       }
     }
 
-    // Marker cluster group
-    var markers = L.markerClusterGroup();
+    // Marker cluster group (with cluster-click disabled)
+    var markers = L.markerClusterGroup({
+      zoomToBoundsOnClick: false,
+      spiderfyOnMaxZoom: true
+    });
 
     // Load GeoJSON (filtered citywide trees)
     fetch('data/processed/full_boro_filtered.geojson')
@@ -143,7 +184,7 @@
         map.addLayer(markers);
       });
 
-    // --- User Tree Annotation with Add Mode ---
+    // --- User Tree Annotation: Add Mode with Crosshair ---
     function saveUserTrees() {
       localStorage.setItem('userTrees', JSON.stringify(userTrees));
     }
@@ -169,43 +210,49 @@
     // Add Mode Logic
     var addingMode = false;
     var addTreeBtn = document.getElementById('addTreeBtn');
-    var instructionBox = document.getElementById('instructionBox');
+    var crosshair = document.getElementById('crosshair');
+    var placeHereBtn = document.getElementById('placeHereBtn');
+    var addTreeForm = document.getElementById('addTreeForm');
 
     addTreeBtn.onclick = function() {
       if (!addingMode) {
         addingMode = true;
         addTreeBtn.classList.add('adding');
-        instructionBox.style.display = 'block';
-        map.getContainer().style.cursor = 'crosshair';
+        crosshair.style.display = 'block';
+        placeHereBtn.style.display = 'block';
+        // Optionally: focus map so keyboard pans work
+        map._container.focus();
       } else {
-        // Allow cancelling Add Mode if clicked again
-        addingMode = false;
-        addTreeBtn.classList.remove('adding');
-        instructionBox.style.display = 'none';
-        map.getContainer().style.cursor = '';
+        cancelAddMode();
       }
     };
 
-    // Only allow annotation in Add Mode, ignore if clicking clusters
-    map.on('click', function(e) {
-      if (!addingMode) return;
-
-      // Prevent accidental cluster clicks
-      if (e.originalEvent.target.classList.contains('marker-cluster')) return;
-
-      document.getElementById('addTreeForm').style.display = 'block';
-      document.getElementById('latInput').value = e.latlng.lat;
-      document.getElementById('lngInput').value = e.latlng.lng;
-
-      // Exit add mode until user confirms or cancels
+    function cancelAddMode() {
       addingMode = false;
       addTreeBtn.classList.remove('adding');
-      instructionBox.style.display = 'none';
-      map.getContainer().style.cursor = '';
+      crosshair.style.display = 'none';
+      placeHereBtn.style.display = 'none';
+    }
+
+    // Place here button logic
+    placeHereBtn.onclick = function() {
+      if (!addingMode) return;
+      var center = map.getCenter();
+      document.getElementById('latInput').value = center.lat;
+      document.getElementById('lngInput').value = center.lng;
+      addTreeForm.style.display = 'block';
+      cancelAddMode();
+    };
+
+    // Prevent accidental "Enter" from submitting add mode
+    placeHereBtn.addEventListener('keydown', function(e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+      }
     });
 
     // Handle user annotation form submission
-    document.getElementById('addTreeForm').onsubmit = function(ev) {
+    addTreeForm.onsubmit = function(ev) {
       ev.preventDefault();
       var species = document.getElementById('speciesInput').value;
       var dbh = document.getElementById('dbhInput').value;
@@ -228,20 +275,35 @@
 
       userTrees.push({lat, lng, species, dbh});
       saveUserTrees();
-      document.getElementById('addTreeForm').reset();
-      document.getElementById('addTreeForm').style.display = 'none';
+      addTreeForm.reset();
+      addTreeForm.style.display = 'none';
     };
 
-    // Cancel in form resets mode
-    document.getElementById('addTreeForm').querySelector('button[type="button"]').onclick = function() {
-      addTreeBtn.classList.remove('adding');
-      instructionBox.style.display = 'none';
-      map.getContainer().style.cursor = '';
-      addingMode = false;
-      document.getElementById('addTreeForm').style.display = 'none';
+    // Cancel button resets mode
+    addTreeForm.querySelector('button[type="button"]').onclick = function() {
+      addTreeForm.style.display = 'none';
     };
-    // --- End User Annotation ---
 
+    // Disable cluster click-to-zoom (uncluster only on zoom level)
+    markers.on('clusterclick', function (a) {
+      // Prevent zooming to bounds
+      a.originalEvent.preventDefault();
+    });
+
+    // Make sure map still works with touch/mouse/keyboard
+    map.on('movestart', function() {
+      if (addingMode) {
+        // Keep crosshair centered even while panning/zooming
+        crosshair.style.display = 'block';
+      }
+    });
+
+    // Optional: Exit add mode on ESC (desktop)
+    document.addEventListener('keydown', function(e) {
+      if (addingMode && e.key === "Escape") {
+        cancelAddMode();
+      }
+    });
   </script>
 </body>
 </html>

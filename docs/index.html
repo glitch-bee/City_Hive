@@ -164,6 +164,29 @@
     #addTreeForm button[type="submit"]:hover {
       background: linear-gradient(90deg, #6e44ff 60%, #00b894 100%);
     }
+    #legendToggleBtn {
+      position: absolute;
+      bottom: 30px;
+      left: 10px;
+      z-index: 1100;
+      background: linear-gradient(90deg, #6e44ff 60%, #00b894 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.13);
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #legendToggleBtn span {
+      font-size: 26px;
+      line-height: 1;
+    }
     #legend strong {
       font-size: 16px;
       font-weight: 700;
@@ -222,6 +245,29 @@
     </svg>
   </div>
   <button id="placeHereBtn">Place Here</button>
+  <button id="legendToggleBtn" style="position:absolute;bottom:30px;left:10px;z-index:1100;background:linear-gradient(90deg,#6e44ff 60%,#00b894 100%);color:#fff;border:none;border-radius:50%;width:44px;height:44px;box-shadow:0 2px 10px rgba(0,0,0,0.13);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
+    <span style="font-size:26px;line-height:1;">&#8505;</span>
+  </button>
+  <button id="treeToggleBtn" style="position:absolute;bottom:90px;left:10px;z-index:1100;background:linear-gradient(90deg,#00b894 60%,#6e44ff 100%);color:#fff;border:none;border-radius:50%;width:44px;height:44px;box-shadow:0 2px 10px rgba(0,0,0,0.13);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
+    <span style="font-size:26px;line-height:1;">🌳</span>
+  </button>
+  <div id="legend" style="display:none;">
+    <strong>Legend</strong><br>
+    <span style="color:#ff6600;">&#9679;</span> Norway maple<br>
+    <span style="color:#ffcc00;">&#9679;</span> Sweetgum<br>
+    <span style="color:#00ccff;">&#9679;</span> Callery pear<br>
+    <span style="color:#00ff99;">&#9679;</span> Honeylocust<br>
+    <span style="color:#ff33cc;">&#9679;</span> Red maple<br>
+    <span style="color:#8b5c2a;">&#9679;</span> London planetree<br>
+    <span style="color:#1e90ff;">&#9679;</span> Pin oak<br>
+    <span style="color:#b22222;">&#9679;</span> Red oak<br>
+    <span style="color:#cccccc;">&#9679;</span> Silver maple<br>
+    <span style="color:#004d00;">&#9679;</span> Black locust<br>
+    <span style="color:#009966;">&#9679;</span> American elm<br>
+    <span style="color:#ff3366;">&#9679;</span> Other<br>
+    <span style="color:#6e44ff;">&#9679;</span> User Hive<br>
+    <span style="color:#ff6e44;">&#9679;</span> User Swarm
+  </div>
   <div id="map"></div>
   <!-- User Tree Input Form -->
   <form id="addTreeForm">
@@ -245,23 +291,6 @@
     <button type="submit">Save</button>
     <button type="button" onclick="document.getElementById('addTreeForm').style.display='none'">Cancel</button>
   </form>
-  <div id="legend">
-    <strong>Legend</strong><br>
-    <span style="color:#ff6600;">&#9679;</span> Norway maple<br>
-    <span style="color:#ffcc00;">&#9679;</span> Sweetgum<br>
-    <span style="color:#00ccff;">&#9679;</span> Callery pear<br>
-    <span style="color:#00ff99;">&#9679;</span> Honeylocust<br>
-    <span style="color:#ff33cc;">&#9679;</span> Red maple<br>
-    <span style="color:#8b5c2a;">&#9679;</span> London planetree<br>
-    <span style="color:#1e90ff;">&#9679;</span> Pin oak<br>
-    <span style="color:#b22222;">&#9679;</span> Red oak<br>
-    <span style="color:#cccccc;">&#9679;</span> Silver maple<br>
-    <span style="color:#004d00;">&#9679;</span> Black locust<br>
-    <span style="color:#009966;">&#9679;</span> American elm<br>
-    <span style="color:#ff3366;">&#9679;</span> Other<br>
-    <span style="color:#6e44ff;">&#9679;</span> User Hive<br>
-    <span style="color:#ff6e44;">&#9679;</span> User Swarm
-  </div>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
   <script src="main.js"></script>
@@ -279,5 +308,38 @@
   <!-- --- END ui.js --- -->
   <!-- --- BEGIN utils.js --- -->
   <!-- --- END utils.js --- -->
+  <script>
+    const legend = document.getElementById('legend');
+    const legendToggleBtn = document.getElementById('legendToggleBtn');
+    let legendVisible = false;
+    legendToggleBtn.onclick = function() {
+      legendVisible = !legendVisible;
+      legend.style.display = legendVisible ? 'block' : 'none';
+      legendToggleBtn.style.background = legendVisible ? 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)' : 'linear-gradient(90deg,#6e44ff 60%,#00b894 100%)';
+    };
+    // Optionally, hide legend when clicking outside
+    document.addEventListener('click', function(e) {
+      if (legendVisible && !legend.contains(e.target) && !legendToggleBtn.contains(e.target)) {
+        legend.style.display = 'none';
+        legendVisible = false;
+        legendToggleBtn.style.background = 'linear-gradient(90deg,#6e44ff 60%,#00b894 100%)';
+      }
+    });
+    // Tree toggle logic
+    const treeToggleBtn = document.getElementById('treeToggleBtn');
+    let treesVisible = true;
+    treeToggleBtn.onclick = function() {
+      treesVisible = !treesVisible;
+      if (window.markers) {
+        if (treesVisible) {
+          window.map.addLayer(window.markers);
+          treeToggleBtn.style.background = 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)';
+        } else {
+          window.map.removeLayer(window.markers);
+          treeToggleBtn.style.background = 'linear-gradient(90deg,#bbb 60%,#ccc 100%)';
+        }
+      }
+    };
+  </script>
 </body>
 </html>

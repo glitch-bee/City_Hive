@@ -2,17 +2,17 @@
 
 ## Immediate Priorities (Core Usability)
 
-- [ ] **Editable Markers**
+- [X] **Editable Markers**
   - Add “Edit” button to marker popup.
   - Allow changing marker type (Hive, Swarm, Structure, etc.).
   - Add/edit description or notes.
   - Save changes to localStorage and refresh marker display.
 
-- [ ] **Description/Notes Field**
+- [X] **Description/Notes Field**
   - Add a “Notes” field to the add/edit marker form.
   - Display notes in marker popups.
 
-- [ ] **Timestamps**
+- [X] **Timestamps**
   - Auto-add date/time when a marker is created.
   - Show date/time in marker popups.
 

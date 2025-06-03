@@ -84,10 +84,11 @@ function drawUserMarkers() {
       }).addTo(window.map);
     }
 
-    // Popup text – type, name, notes, timestamp, and buttons
+    // Popup text – type, name, notes, timestamp, photo, and buttons
     let displayType = tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : "Hive";
     let popup = `<strong>${tree.name ? tree.name + ' (' : ''}User ${displayType}${tree.name ? ')' : ''}</strong><br>`;
     if (tree.notes) popup += `<em>${tree.notes}</em><br>`;
+    if (tree.photoUrl) popup += `<img src='${tree.photoUrl}' style='max-width:120px;max-height:120px;border-radius:8px;margin:6px 0;'><br>`;
     if (tree.timestamp) {
       const d = new Date(tree.timestamp);
       popup += `<small>Added: ${d.toLocaleString()}</small><br>`;
@@ -145,7 +146,7 @@ placeHereBtn.addEventListener('keydown', function(e) {
 });
 
 // --- Form Submission ---
-addTreeForm.onsubmit = function(ev) {
+addTreeForm.onsubmit = async function(ev) {
   ev.preventDefault();
   var type = document.getElementById('typeInput').value;
   var lat = parseFloat(document.getElementById('latInput').value);
@@ -153,6 +154,24 @@ addTreeForm.onsubmit = function(ev) {
   var name = document.getElementById('nameInput').value;
   var notes = document.getElementById('notesInput').value;
   var showRadius = document.getElementById('showRadiusInput').checked;
+  var photoInput = document.getElementById('photoInput');
+  var photoUrl = null;
+
+  // Upload photo if selected
+  if (photoInput.files && photoInput.files[0]) {
+    const file = photoInput.files[0];
+    const storageRef = firebase.storage().ref();
+    const fileName = 'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+    const photoRef = storageRef.child(fileName);
+    try {
+      const snapshot = await photoRef.put(file);
+      photoUrl = await snapshot.ref.getDownloadURL();
+    } catch (err) {
+      alert('Photo upload failed: ' + err.message);
+      photoUrl = null;
+    }
+  }
+
   if (editingMarkerId) {
     // Edit existing marker
     var marker = window.userTrees.find(t => String(t.id) === String(editingMarkerId));
@@ -163,7 +182,7 @@ addTreeForm.onsubmit = function(ev) {
       marker.name = name;
       marker.notes = notes;
       marker.showRadius = showRadius;
-      // Do not update timestamp on edit
+      if (photoUrl) marker.photoUrl = photoUrl;
     }
     editingMarkerId = null;
   } else {
@@ -171,11 +190,13 @@ addTreeForm.onsubmit = function(ev) {
     var id = Date.now() + Math.random().toString(36).substr(2, 5);
     var timestamp = Date.now();
     var newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
+    if (photoUrl) newTree.photoUrl = photoUrl;
     window.userTrees.push(newTree);
   }
   saveUserTrees();
   drawUserMarkers();
   addTreeForm.reset();
+  document.getElementById('photoPreview').style.display = 'none';
   addTreeForm.style.display = 'none';
 };
 
@@ -213,12 +234,28 @@ window.map.on('popupopen', function(e) {
   var btn = e.popup._contentNode.querySelector('.delete-marker-btn');
   if (btn) {
     L.DomEvent.disableClickPropagation(btn);
-    btn.addEventListener('click', function(ev) {
+    btn.addEventListener('click', async function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
       var markerId = btn.getAttribute('data-id');
+      // Find marker to get photo URL
+      var marker = window.userTrees.find(t => String(t.id) === String(markerId));
+      // Remove from userTrees and update localStorage
       window.userTrees = window.userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
+      // Remove photo from Firebase Storage if exists
+      if (marker && marker.photoUrl) {
+        try {
+          // Extract the path from the photoUrl
+          var baseUrl = firebase.storage().ref().toString();
+          var path = marker.photoUrl.split(baseUrl + '/')[1];
+          if (path) {
+            await firebase.storage().ref(path).delete();
+          }
+        } catch (err) {
+          // Ignore errors (file may already be gone)
+        }
+      }
       window.map.closePopup();
       setTimeout(drawUserMarkers, 200);
     });

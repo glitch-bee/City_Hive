@@ -294,6 +294,10 @@
     <label>Notes:<br>
       <textarea id="notesInput" rows="2" maxlength="200" placeholder="(optional notes)"></textarea>
     </label><br>
+    <label>Photo:<br>
+      <input type="file" id="photoInput" accept="image/*" capture="environment">
+    </label><br>
+    <img id="photoPreview" style="max-width:100px;max-height:100px;display:none;border-radius:8px;margin-bottom:8px;">
     <label><input type="checkbox" id="showRadiusInput" checked> Show radius</label><br>
     <input type="hidden" id="latInput">
     <input type="hidden" id="lngInput">
@@ -317,6 +321,24 @@
   <!-- --- END ui.js --- -->
   <!-- --- BEGIN utils.js --- -->
   <!-- --- END utils.js --- -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxuqejpdAdgltobX7tFD_Du6UE9_dTp_c",
+      authDomain: "city-hive-90f1e.firebaseapp.com",
+      projectId: "city-hive-90f1e",
+      storageBucket: "city-hive-90f1e.appspot.com",
+      messagingSenderId: "111416325340",
+      appId: "1:111416325340:web:0804bbbed2647f57ce7019",
+      measurementId: "G-LY3CH0HXDK"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    // Initialize Storage
+    const storage = firebase.storage();
+  </script>
   <script>
     const legend = document.getElementById('legend');
     const legendToggleBtn = document.getElementById('legendToggleBtn');

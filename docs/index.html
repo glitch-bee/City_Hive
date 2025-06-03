@@ -105,9 +105,16 @@
         <option value="structure">Structure</option>
       </select>
     </label><br>
+    <label>Name:<br>
+      <input type="text" id="nameInput" maxlength="40" placeholder="(optional label)">
+    </label><br>
+    <label>Notes:<br>
+      <textarea id="notesInput" rows="2" maxlength="200" placeholder="(optional notes)"></textarea>
+    </label><br>
+    <label><input type="checkbox" id="showRadiusInput" checked> Show radius</label><br>
     <input type="hidden" id="latInput">
     <input type="hidden" id="lngInput">
-    <button type="submit">Add</button>
+    <button type="submit">Save</button>
     <button type="button" onclick="document.getElementById('addTreeForm').style.display='none'">Cancel</button>
   </form>
   <div id="legend">

@@ -28,16 +28,19 @@ function drawUserMarkers() {
   clearUserMarkersFromMap();
   window.userTrees.forEach(function(tree) {
     var pulseColor = getPulseColor(tree.type);
-    // Pulse
-    var pulse = L.circle([tree.lat, tree.lng], {
-      radius: 60,
-      color: pulseColor,
-      fillColor: pulseColor,
-      fillOpacity: 0.18,
-      weight: 1,
-      opacity: 0.35,
-      interactive: false
-    }).addTo(window.map);
+    // Pulse (toggleable)
+    var pulse = null;
+    if (tree.showRadius !== false) { // default to true if undefined
+      pulse = L.circle([tree.lat, tree.lng], {
+        radius: 60,
+        color: pulseColor,
+        fillColor: pulseColor,
+        fillOpacity: 0.18,
+        weight: 1,
+        opacity: 0.35,
+        interactive: false
+      }).addTo(window.map);
+    }
     // Marker
     var marker = L.circleMarker([tree.lat, tree.lng], {
       radius: 7,
@@ -48,16 +51,17 @@ function drawUserMarkers() {
       fillOpacity: 0.85
     }).addTo(window.map);
 
-    // Popup text – just type and delete button
+    // Popup text – type, name, notes, and buttons
     let displayType = tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : "Hive";
-    let popup = `<strong>User ${displayType}</strong><br>`;
+    let popup = `<strong>${tree.name ? tree.name + ' (' : ''}User ${displayType}${tree.name ? ')' : ''}</strong><br>`;
+    if (tree.notes) popup += `<em>${tree.notes}</em><br>`;
     popup += `<button class="edit-marker-btn" data-id="${tree.id}">Edit</button> `;
     popup += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
-
     marker.bindPopup(popup);
 
     // Save for later removal
-    window._userMarkerLayers.push(pulse, marker);
+    if (pulse) window._userMarkerLayers.push(pulse);
+    window._userMarkerLayers.push(marker);
   });
 }
 
@@ -109,6 +113,9 @@ addTreeForm.onsubmit = function(ev) {
   var type = document.getElementById('typeInput').value;
   var lat = parseFloat(document.getElementById('latInput').value);
   var lng = parseFloat(document.getElementById('lngInput').value);
+  var name = document.getElementById('nameInput').value;
+  var notes = document.getElementById('notesInput').value;
+  var showRadius = document.getElementById('showRadiusInput').checked;
   if (editingMarkerId) {
     // Edit existing marker
     var marker = window.userTrees.find(t => String(t.id) === String(editingMarkerId));
@@ -116,12 +123,15 @@ addTreeForm.onsubmit = function(ev) {
       marker.type = type;
       marker.lat = lat;
       marker.lng = lng;
+      marker.name = name;
+      marker.notes = notes;
+      marker.showRadius = showRadius;
     }
     editingMarkerId = null;
   } else {
     // Add new marker
     var id = Date.now() + Math.random().toString(36).substr(2, 5);
-    var newTree = { id, lat, lng, type };
+    var newTree = { id, lat, lng, type, name, notes, showRadius };
     window.userTrees.push(newTree);
   }
   saveUserTrees();
@@ -152,6 +162,9 @@ window.map.on('popupopen', function(e) {
         document.getElementById('typeInput').value = marker.type || '';
         document.getElementById('latInput').value = marker.lat;
         document.getElementById('lngInput').value = marker.lng;
+        document.getElementById('nameInput').value = marker.name || '';
+        document.getElementById('notesInput').value = marker.notes || '';
+        document.getElementById('showRadiusInput').checked = marker.showRadius !== false;
         editingMarkerId = marker.id;
         addTreeForm.style.display = 'block';
         window.map.closePopup();

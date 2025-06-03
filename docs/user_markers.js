@@ -167,38 +167,56 @@ function clearMarkerError() {
   errorMsg.style.display = 'none';
 }
 
+async function uploadPhoto(file) {
+  const maxRetries = 3;
+  let attempt = 0;
+  const storageRef = firebase.storage().ref();
+  const fileName = 'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+  const photoRef = storageRef.child(fileName);
+
+  while (attempt < maxRetries) {
+    try {
+      const snapshot = await photoRef.put(file);
+      return await snapshot.ref.getDownloadURL();
+    } catch (err) {
+      console.error(`Photo upload failed on attempt ${attempt + 1}:`, err);
+      attempt++;
+      if (attempt >= maxRetries) {
+        throw new Error('Max retry limit reached for photo upload.');
+      }
+    }
+  }
+}
+
 if (addTreeForm) {
   addTreeForm.addEventListener('submit', async function(ev) {
     ev.preventDefault();
     clearMarkerError();
-    var type = document.getElementById('typeInput').value;
-    var lat = parseFloat(document.getElementById('latInput').value);
-    var lng = parseFloat(document.getElementById('lngInput').value);
-    var name = document.getElementById('nameInput').value;
-    var notes = document.getElementById('notesInput').value;
-    var showRadius = document.getElementById('showRadiusInput').checked;
-    var photoInput = document.getElementById('photoInput');
-    var photoUrl = null;
+    const type = document.getElementById('typeInput').value;
+    const lat = parseFloat(document.getElementById('latInput').value);
+    const lng = parseFloat(document.getElementById('lngInput').value);
+    const name = document.getElementById('nameInput').value;
+    const notes = document.getElementById('notesInput').value;
+    const showRadius = document.getElementById('showRadiusInput').checked;
+    const photoInput = document.getElementById('photoInput');
+    let photoUrl = null;
 
-    // Upload photo if selected
     if (photoInput && photoInput.files && photoInput.files[0]) {
       const file = photoInput.files[0];
-      const storageRef = firebase.storage().ref();
-      const fileName = 'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-      const photoRef = storageRef.child(fileName);
+      if (file.size > 5 * 1024 * 1024) { // Limit file size to 5MB
+        showMarkerError('Photo size exceeds 5MB limit.');
+        return;
+      }
       try {
-        const snapshot = await photoRef.put(file);
-        photoUrl = await snapshot.ref.getDownloadURL();
+        photoUrl = await uploadPhoto(file);
       } catch (err) {
         showMarkerError('Photo upload failed: ' + err.message);
-        photoUrl = null;
         return;
       }
     }
 
     if (editingMarkerId) {
-      // Edit existing marker
-      var marker = window.userTrees.find(t => String(t.id) === String(editingMarkerId));
+      const marker = window.userTrees.find(t => String(t.id) === String(editingMarkerId));
       if (marker) {
         marker.type = type;
         marker.lat = lat;
@@ -210,13 +228,13 @@ if (addTreeForm) {
       }
       editingMarkerId = null;
     } else {
-      // Add new marker
-      var id = Date.now() + Math.random().toString(36).substr(2, 5);
-      var timestamp = Date.now();
-      var newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
+      const id = Date.now() + Math.random().toString(36).substr(2, 5);
+      const timestamp = Date.now();
+      const newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
       if (photoUrl) newTree.photoUrl = photoUrl;
       window.userTrees.push(newTree);
     }
+
     saveUserTrees();
     drawUserMarkers();
     addTreeForm.reset();

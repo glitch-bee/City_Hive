@@ -111,7 +111,7 @@ window.addingMode = false;
 var addTreeBtn = document.getElementById('addTreeBtn');
 var crosshair = document.getElementById('crosshair');
 var placeHereBtn = document.getElementById('placeHereBtn');
-var addTreeForm = document.getElementById('addTreeForm');
+// Removed duplicate declaration of addTreeForm to fix JS error
 
 addTreeBtn.onclick = function() {
   if (!window.addingMode) {
@@ -145,70 +145,94 @@ placeHereBtn.addEventListener('keydown', function(e) {
   if (e.key === "Enter") e.preventDefault();
 });
 
-// --- Form Submission ---
-addTreeForm.onsubmit = async function(ev) {
-  ev.preventDefault();
-  var type = document.getElementById('typeInput').value;
-  var lat = parseFloat(document.getElementById('latInput').value);
-  var lng = parseFloat(document.getElementById('lngInput').value);
-  var name = document.getElementById('nameInput').value;
-  var notes = document.getElementById('notesInput').value;
-  var showRadius = document.getElementById('showRadiusInput').checked;
-  var photoInput = document.getElementById('photoInput');
-  var photoUrl = null;
-
-  // Upload photo if selected
-  if (photoInput.files && photoInput.files[0]) {
-    const file = photoInput.files[0];
-    const storageRef = firebase.storage().ref();
-    const fileName = 'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-    const photoRef = storageRef.child(fileName);
-    try {
-      const snapshot = await photoRef.put(file);
-      photoUrl = await snapshot.ref.getDownloadURL();
-    } catch (err) {
-      alert('Photo upload failed: ' + err.message);
-      photoUrl = null;
-    }
-  }
-
-  if (editingMarkerId) {
-    // Edit existing marker
-    var marker = window.userTrees.find(t => String(t.id) === String(editingMarkerId));
-    if (marker) {
-      marker.type = type;
-      marker.lat = lat;
-      marker.lng = lng;
-      marker.name = name;
-      marker.notes = notes;
-      marker.showRadius = showRadius;
-      if (photoUrl) marker.photoUrl = photoUrl;
-    }
-    editingMarkerId = null;
-  } else {
-    // Add new marker
-    var id = Date.now() + Math.random().toString(36).substr(2, 5);
-    var timestamp = Date.now();
-    var newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
-    if (photoUrl) newTree.photoUrl = photoUrl;
-    window.userTrees.push(newTree);
-  }
-  saveUserTrees();
-  drawUserMarkers();
-  addTreeForm.reset();
-  document.getElementById('photoPreview').style.display = 'none';
-  addTreeForm.style.display = 'none';
-};
-
-// Cancel button
-addTreeForm.querySelector('button[type="button"]').onclick = function() {
-  addTreeForm.style.display = 'none';
-  editingMarkerId = null;
-};
-
-// --- Edit Marker Logic ---
+// Only declare addTreeForm once at the top of the script or before first use
+const addTreeForm = document.getElementById('addTreeForm');
 let editingMarkerId = null;
 
+// Add error message display below the form
+let errorMsg = document.createElement('div');
+errorMsg.id = 'markerErrorMsg';
+errorMsg.style.color = '#b22222';
+errorMsg.style.margin = '8px 0 0 0';
+errorMsg.style.fontWeight = '600';
+errorMsg.style.display = 'none';
+addTreeForm.appendChild(errorMsg);
+
+function showMarkerError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.style.display = 'block';
+}
+function clearMarkerError() {
+  errorMsg.textContent = '';
+  errorMsg.style.display = 'none';
+}
+
+if (addTreeForm) {
+  addTreeForm.addEventListener('submit', async function(ev) {
+    ev.preventDefault();
+    clearMarkerError();
+    var type = document.getElementById('typeInput').value;
+    var lat = parseFloat(document.getElementById('latInput').value);
+    var lng = parseFloat(document.getElementById('lngInput').value);
+    var name = document.getElementById('nameInput').value;
+    var notes = document.getElementById('notesInput').value;
+    var showRadius = document.getElementById('showRadiusInput').checked;
+    var photoInput = document.getElementById('photoInput');
+    var photoUrl = null;
+
+    // Upload photo if selected
+    if (photoInput && photoInput.files && photoInput.files[0]) {
+      const file = photoInput.files[0];
+      const storageRef = firebase.storage().ref();
+      const fileName = 'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      const photoRef = storageRef.child(fileName);
+      try {
+        const snapshot = await photoRef.put(file);
+        photoUrl = await snapshot.ref.getDownloadURL();
+      } catch (err) {
+        showMarkerError('Photo upload failed: ' + err.message);
+        photoUrl = null;
+        return;
+      }
+    }
+
+    if (editingMarkerId) {
+      // Edit existing marker
+      var marker = window.userTrees.find(t => String(t.id) === String(editingMarkerId));
+      if (marker) {
+        marker.type = type;
+        marker.lat = lat;
+        marker.lng = lng;
+        marker.name = name;
+        marker.notes = notes;
+        marker.showRadius = showRadius;
+        if (photoUrl) marker.photoUrl = photoUrl;
+      }
+      editingMarkerId = null;
+    } else {
+      // Add new marker
+      var id = Date.now() + Math.random().toString(36).substr(2, 5);
+      var timestamp = Date.now();
+      var newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
+      if (photoUrl) newTree.photoUrl = photoUrl;
+      window.userTrees.push(newTree);
+    }
+    saveUserTrees();
+    drawUserMarkers();
+    addTreeForm.reset();
+    document.getElementById('photoPreview').style.display = 'none';
+    addTreeForm.style.display = 'none';
+    clearMarkerError();
+  });
+  // Cancel button
+  addTreeForm.querySelector('button[type="button"]').onclick = function() {
+    addTreeForm.style.display = 'none';
+    editingMarkerId = null;
+    clearMarkerError();
+  };
+}
+
+// --- Edit Marker Logic ---
 window.map.on('popupopen', function(e) {
   var editBtn = e.popup._contentNode.querySelector('.edit-marker-btn');
   if (editBtn) {
@@ -272,81 +296,3 @@ window.map.on('popupopen', function(e) {
   padding: 0;
 }
 */
-
-// Add error message display below the form
-let errorMsg = document.createElement('div');
-errorMsg.id = 'markerErrorMsg';
-errorMsg.style.color = '#b22222';
-errorMsg.style.margin = '8px 0 0 0';
-errorMsg.style.fontWeight = '600';
-errorMsg.style.display = 'none';
-document.getElementById('addTreeForm').appendChild(errorMsg);
-
-function showMarkerError(msg) {
-  errorMsg.textContent = msg;
-  errorMsg.style.display = 'block';
-}
-function clearMarkerError() {
-  errorMsg.textContent = '';
-  errorMsg.style.display = 'none';
-}
-
-// Attach form handler with robust logging
-const addTreeForm = document.getElementById('addTreeForm');
-if (addTreeForm) {
-  addTreeForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    clearMarkerError();
-    console.log('[user_markers] Form submitted');
-    try {
-      // Gather form data
-      const type = document.getElementById('typeInput').value;
-      const name = document.getElementById('nameInput').value;
-      const notes = document.getElementById('notesInput').value;
-      const showRadius = document.getElementById('showRadiusInput').checked;
-      const lat = document.getElementById('latInput').value;
-      const lng = document.getElementById('lngInput').value;
-      const photoInput = document.getElementById('photoInput');
-      let photoFile = photoInput && photoInput.files && photoInput.files[0] ? photoInput.files[0] : null;
-      let photoURL = null;
-      // Upload photo if present
-      if (photoFile) {
-        console.log('[user_markers] Uploading photo:', photoFile.name);
-        try {
-          const storageRef = firebase.storage().ref();
-          const photoRef = storageRef.child('user_photos/' + Date.now() + '_' + photoFile.name);
-          const snapshot = await photoRef.put(photoFile);
-          photoURL = await snapshot.ref.getDownloadURL();
-          console.log('[user_markers] Photo uploaded:', photoURL);
-        } catch (err) {
-          console.error('[user_markers] Photo upload error:', err);
-          showMarkerError('Photo upload failed: ' + (err.message || err));
-          return;
-        }
-      }
-      // Save marker data (to localStorage or wherever your logic is)
-      try {
-        // Example: Save to localStorage (replace with your actual save logic)
-        let markers = JSON.parse(localStorage.getItem('userMarkers') || '[]');
-        const markerData = {
-          type, name, notes, showRadius, lat, lng, photoURL,
-          timestamp: new Date().toISOString()
-        };
-        markers.push(markerData);
-        localStorage.setItem('userMarkers', JSON.stringify(markers));
-        console.log('[user_markers] Marker saved:', markerData);
-        // Optionally, update the map UI here
-        addTreeForm.reset();
-        addTreeForm.style.display = 'none';
-        clearMarkerError();
-      } catch (err) {
-        console.error('[user_markers] Marker save error:', err);
-        showMarkerError('Marker save failed: ' + (err.message || err));
-        return;
-      }
-    } catch (err) {
-      console.error('[user_markers] Unexpected error:', err);
-      showMarkerError('Unexpected error: ' + (err.message || err));
-    }
-  });
-}

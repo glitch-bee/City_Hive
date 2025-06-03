@@ -51,6 +51,7 @@ function drawUserMarkers() {
     // Popup text – just type and delete button
     let displayType = tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : "Hive";
     let popup = `<strong>User ${displayType}</strong><br>`;
+    popup += `<button class="edit-marker-btn" data-id="${tree.id}">Edit</button> `;
     popup += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
 
     marker.bindPopup(popup);
@@ -108,9 +109,21 @@ addTreeForm.onsubmit = function(ev) {
   var type = document.getElementById('typeInput').value;
   var lat = parseFloat(document.getElementById('latInput').value);
   var lng = parseFloat(document.getElementById('lngInput').value);
-  var id = Date.now() + Math.random().toString(36).substr(2, 5);
-  var newTree = { id, lat, lng, type };
-  window.userTrees.push(newTree);
+  if (editingMarkerId) {
+    // Edit existing marker
+    var marker = window.userTrees.find(t => String(t.id) === String(editingMarkerId));
+    if (marker) {
+      marker.type = type;
+      marker.lat = lat;
+      marker.lng = lng;
+    }
+    editingMarkerId = null;
+  } else {
+    // Add new marker
+    var id = Date.now() + Math.random().toString(36).substr(2, 5);
+    var newTree = { id, lat, lng, type };
+    window.userTrees.push(newTree);
+  }
   saveUserTrees();
   drawUserMarkers();
   addTreeForm.reset();
@@ -120,24 +133,41 @@ addTreeForm.onsubmit = function(ev) {
 // Cancel button
 addTreeForm.querySelector('button[type="button"]').onclick = function() {
   addTreeForm.style.display = 'none';
+  editingMarkerId = null;
 };
 
-// --- Delete Button Logic ---
+// --- Edit Marker Logic ---
+let editingMarkerId = null;
+
 window.map.on('popupopen', function(e) {
+  var editBtn = e.popup._contentNode.querySelector('.edit-marker-btn');
+  if (editBtn) {
+    L.DomEvent.disableClickPropagation(editBtn);
+    editBtn.addEventListener('click', function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      var markerId = editBtn.getAttribute('data-id');
+      var marker = window.userTrees.find(t => String(t.id) === String(markerId));
+      if (marker) {
+        document.getElementById('typeInput').value = marker.type || '';
+        document.getElementById('latInput').value = marker.lat;
+        document.getElementById('lngInput').value = marker.lng;
+        editingMarkerId = marker.id;
+        addTreeForm.style.display = 'block';
+        window.map.closePopup();
+      }
+    });
+  }
   var btn = e.popup._contentNode.querySelector('.delete-marker-btn');
   if (btn) {
-    // Prevent Leaflet from closing the popup on button click
     L.DomEvent.disableClickPropagation(btn);
     btn.addEventListener('click', function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
       var markerId = btn.getAttribute('data-id');
-      // Remove from userTrees and update localStorage
       window.userTrees = window.userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
-      // Remove all popups before redrawing
       window.map.closePopup();
-      // Redraw after popup closes to avoid race with Leaflet
       setTimeout(drawUserMarkers, 200);
     });
   }

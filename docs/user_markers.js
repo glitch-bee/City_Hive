@@ -51,10 +51,14 @@ function drawUserMarkers() {
       fillOpacity: 0.85
     }).addTo(window.map);
 
-    // Popup text – type, name, notes, and buttons
+    // Popup text – type, name, notes, timestamp, and buttons
     let displayType = tree.type ? tree.type.charAt(0).toUpperCase() + tree.type.slice(1) : "Hive";
     let popup = `<strong>${tree.name ? tree.name + ' (' : ''}User ${displayType}${tree.name ? ')' : ''}</strong><br>`;
     if (tree.notes) popup += `<em>${tree.notes}</em><br>`;
+    if (tree.timestamp) {
+      const d = new Date(tree.timestamp);
+      popup += `<small>Added: ${d.toLocaleString()}</small><br>`;
+    }
     popup += `<button class="edit-marker-btn" data-id="${tree.id}">Edit</button> `;
     popup += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
     marker.bindPopup(popup);
@@ -126,12 +130,14 @@ addTreeForm.onsubmit = function(ev) {
       marker.name = name;
       marker.notes = notes;
       marker.showRadius = showRadius;
+      // Do not update timestamp on edit
     }
     editingMarkerId = null;
   } else {
     // Add new marker
     var id = Date.now() + Math.random().toString(36).substr(2, 5);
-    var newTree = { id, lat, lng, type, name, notes, showRadius };
+    var timestamp = Date.now();
+    var newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
     window.userTrees.push(newTree);
   }
   saveUserTrees();

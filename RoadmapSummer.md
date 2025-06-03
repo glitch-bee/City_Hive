@@ -16,7 +16,7 @@
   - Auto-add date/time when a marker is created.
   - Show date/time in marker popups.
 
-- [ ] **Mobile-Friendly Legend**
+- [X] **Mobile-Friendly Legend**
   - Move legend to a pop-out, modal, or toggle button for mobile.
   - Keep a small legend button/icon visible at all times.
 

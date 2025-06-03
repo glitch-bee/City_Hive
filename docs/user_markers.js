@@ -45,8 +45,8 @@ function drawUserMarkers() {
     let iconHtml = '';
     switch ((tree.type || '').toLowerCase()) {
       case 'hive':
-        // Skep icon (simple SVG)
-        iconHtml = `<svg width="28" height="28" viewBox="0 0 28 28"><ellipse cx="14" cy="20" rx="8" ry="5" fill="#6e44ff" stroke="#3a1e6e" stroke-width="2"/><ellipse cx="14" cy="15" rx="6" ry="4" fill="#a08cff" stroke="#3a1e6e" stroke-width="2"/><ellipse cx="14" cy="11" rx="4" ry="3" fill="#d1c4e9" stroke="#3a1e6e" stroke-width="2"/><ellipse cx="14" cy="8" rx="2.5" ry="2" fill="#ede7f6" stroke="#3a1e6e" stroke-width="2"/></svg>`;
+        // Skep icon (simple SVG, now orange/yellow)
+        iconHtml = `<svg width="28" height="28" viewBox="0 0 28 28"><ellipse cx="14" cy="20" rx="8" ry="5" fill="#ffb300" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="15" rx="6" ry="4" fill="#ffd54f" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="11" rx="4" ry="3" fill="#ffe082" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="8" rx="2.5" ry="2" fill="#fffde7" stroke="#b26a00" stroke-width="2"/></svg>`;
         break;
       case 'swarm':
         // Three bees (simple SVG)

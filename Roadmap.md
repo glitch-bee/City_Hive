@@ -12,6 +12,7 @@
 - [x] Branded map title and styled default controls
 - [x] Accessibility polish and keyboard navigation
 - [x] Local Firebase config file for API keys
+- [x] Firebase made optional for offline use
 
 ## In Progress
 
@@ -23,4 +24,4 @@
 - [ ] Timeline or heatmap visualizations
 - [ ] Admin features for club data sharing
 
-_Last updated: Summer 2025_
+_Last updated: 2025-07-02_

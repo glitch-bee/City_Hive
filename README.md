@@ -9,7 +9,8 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 - **Add and Edit Markers** – use the crosshair to place markers and edit or delete them later.
 - **Import/Export** – download your markers as JSON and load them again on another device.
 - **Delete All Markers** – remove all your saved markers with one click.
-- **Photo Uploads** – attach a photo (up to 5&nbsp;MB) to a marker. Images are stored in Firebase.
+- **Photo Uploads** – attach a photo (up to 5&nbsp;MB) to a marker. Images are stored in Firebase when available.
+- **Optional Firebase** – comment out the Firebase scripts and the app still runs; photo upload is simply skipped.
 - **Filter by Type** – show or hide markers for Hive, Swarm, Tree or Structure.
 - **Help Modal** – quick instructions available from the "?" button.
 - **Distinct Icons** – unique icons identify hives, swarms, trees and structures.
@@ -37,6 +38,7 @@ credentials from `docs/firebaseConfig.local.js`, which is ignored by Git.
 
 Only store this key on your machine. **Do not commit real API keys** to the
 repository.
+If you prefer not to use Firebase, simply comment out the Firebase scripts in `docs/index.html` and the app will skip photo uploads.
 
 ## Usage
 
@@ -53,9 +55,10 @@ repository.
 - **Where are my markers stored?**  They are saved in your browser's `localStorage` under `userTrees`. Clearing site data will remove them.
 - **My markers disappeared on another device.**  Export them to a file from the original device and import on the new one. There is no automatic sync yet.
 - **Photo upload fails.**  Ensure the image is under 5&nbsp;MB and you have a network connection for Firebase storage.
+- **Can I run without Firebase?**  Yes. Comment out the Firebase scripts and the app will still work; photo uploads will simply be disabled.
 
 ## Contact
 
 Questions or bug reports? Reach out via the NY Bee Club or open an issue on GitHub.
 
-_Last updated: 2025-07-01_
+_Last updated: 2025-07-02_

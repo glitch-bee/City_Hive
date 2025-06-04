@@ -1,3 +1,6 @@
 *.csv
 *.geojson
 .env
+
+# Local Firebase config
+docs/firebaseConfig.local.js

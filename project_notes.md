@@ -58,7 +58,6 @@ City_Hive is a browser-based dashboard to map feral honey bee sightings and like
 
 - Annotations are local-only; cloud sync is not yet available.
 - Date-based filtering of markers is still in development.
-- Staten Island data still needs to be merged into the citywide file.
 - Trend visualizations are not yet implemented.
 - Minor UI polish is ongoing.
 

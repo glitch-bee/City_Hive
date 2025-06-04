@@ -1,18 +1,23 @@
-var CH = window.CityHive;
+/**
+ * UI helpers that interact with the map and user marker logic.
+ */
+import { map } from './main.js';
+import { markers } from './markers.js';
+import { addingMode, cancelAddMode, crosshair } from './user_markers.js';
 
 // Disable cluster click-to-zoom (uncluster only on zoom level)
-CH.markers.on('clusterclick', a => {
+markers.on('clusterclick', a => {
   a.originalEvent.preventDefault();
 });
 
-CH.map.on('movestart', () => {
-  if (CH.addingMode) {
+map.on('movestart', () => {
+  if (addingMode) {
     crosshair.style.display = 'block';
   }
 });
 
 document.addEventListener('keydown', e => {
-  if (CH.addingMode && e.key === 'Escape') {
+  if (addingMode && e.key === 'Escape') {
     cancelAddMode();
   }
 });
@@ -47,17 +52,18 @@ locateBtn.onAdd = map => {
   };
   return btn;
 };
-locateBtn.addTo(CH.map);
+locateBtn.addTo(map);
 
 // Show the marker when location is found
-CH.map.on('locationfound', e => {
-  if (CH._myloc) CH.map.removeLayer(CH._myloc);
-  CH._myloc = L.circleMarker(e.latlng, {
+let myloc;
+map.on('locationfound', e => {
+  if (myloc) map.removeLayer(myloc);
+  myloc = L.circleMarker(e.latlng, {
     radius: 10, fillColor: '#3399ff', color: '#3399ff',
     fillOpacity: 0.4, weight: 2
-  }).addTo(CH.map).bindPopup('You are here').openPopup();
+  }).addTo(map).bindPopup('You are here').openPopup();
 });
 
-CH.map.on('locationerror', () => {
+map.on('locationerror', () => {
   alert('Unable to access your location.');
 });

@@ -1,5 +1,6 @@
 // --- User Marker Logic ---
-var CH = window.CityHive;
+// Provides creation and management of user-added markers on the map.
+import { map } from './main.js';
 
 /**
  * Return the pulse color for a given marker type.
@@ -29,7 +30,7 @@ const createPulseCircle = (tree, color) => {
     weight: 1,
     opacity: 0.35,
     interactive: false
-  }).addTo(CH.map);
+  }).addTo(map);
 };
 
 /**
@@ -66,25 +67,25 @@ const buildPopupHtml = tree => {
 };
 
 const saveUserTrees = () => {
-  localStorage.setItem('userTrees', JSON.stringify(CH.userTrees));
+  localStorage.setItem('userTrees', JSON.stringify(userTrees));
 };
-CH.saveUserTrees = saveUserTrees;
 
-CH.userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
-window.userTrees = CH.userTrees;
+export let userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
 
-CH.activeTypes = { hive: true, swarm: true, tree: true, structure: true };
+export let activeTypes = { hive: true, swarm: true, tree: true, structure: true };
+
+let userMarkerLayers = [];
 const filterCheckboxes = document.querySelectorAll('#typeFilters input[type="checkbox"]');
 filterCheckboxes.forEach(cb => {
-  CH.activeTypes[cb.dataset.type] = cb.checked;
+  activeTypes[cb.dataset.type] = cb.checked;
   cb.addEventListener('change', () => {
-    CH.activeTypes[cb.dataset.type] = cb.checked;
+    activeTypes[cb.dataset.type] = cb.checked;
     drawUserMarkers();
   });
 });
 
 const exportUserMarkers = () => {
-  const data = CH.userTrees.map(({type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl}) => {
+  const data = userTrees.map(({type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl}) => {
     const obj = { type, lat, lng, notes, timestamp, id, name, showRadius };
     if (photoUrl) obj.photoUrl = photoUrl;
     return obj;
@@ -102,7 +103,6 @@ const exportUserMarkers = () => {
     URL.revokeObjectURL(url);
   }, 0);
 };
-CH.exportUserMarkers = exportUserMarkers;
 
 const importUserMarkers = () => {
   const input = document.createElement('input');
@@ -122,14 +122,14 @@ const importUserMarkers = () => {
           if (!item || typeof item !== 'object') return;
           if (typeof item.lat !== 'number' || typeof item.lng !== 'number' || !item.id) return;
           const { type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl } = item;
-          const existing = CH.userTrees.find(t => String(t.id) === String(id));
+          const existing = userTrees.find(t => String(t.id) === String(id));
           if (existing) {
             Object.assign(existing, { type, lat, lng, notes, timestamp, name, showRadius });
             if (photoUrl) existing.photoUrl = photoUrl;
           } else {
             const newTree = { type, lat, lng, notes, timestamp, id, name, showRadius };
             if (photoUrl) newTree.photoUrl = photoUrl;
-            CH.userTrees.push(newTree);
+            userTrees.push(newTree);
           }
           changed = true;
         });
@@ -151,31 +151,27 @@ const importUserMarkers = () => {
   input.click();
   document.body.removeChild(input);
 };
-CH.importUserMarkers = importUserMarkers;
 
 const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
-  CH.userTrees = [];
-  window.userTrees = CH.userTrees;
+  userTrees = [];
   saveUserTrees();
   drawUserMarkers();
 };
-CH.deleteAllUserMarkers = deleteAllUserMarkers;
 
 // Remove all previous marker layers
 const clearUserMarkersFromMap = () => {
-  if (CH.userMarkerLayers) {
-    CH.userMarkerLayers.forEach(layer => CH.map.removeLayer(layer));
+  if (userMarkerLayers) {
+    userMarkerLayers.forEach(layer => map.removeLayer(layer));
   }
-  CH.userMarkerLayers = [];
+  userMarkerLayers = [];
 };
-CH.clearUserMarkersFromMap = clearUserMarkersFromMap;
 
 // Draw user markers
 const drawUserMarkers = () => {
   clearUserMarkersFromMap();
-  CH.userTrees.forEach(tree => {
-    if (CH.activeTypes && CH.activeTypes[tree.type || 'hive'] === false) return;
+  userTrees.forEach(tree => {
+    if (activeTypes && activeTypes[tree.type || 'hive'] === false) return;
     const color = getPulseColor(tree.type);
     const pulse = createPulseCircle(tree, color);
 
@@ -189,7 +185,7 @@ const drawUserMarkers = () => {
         iconAnchor: [14, 22],
         popupAnchor: [0, -18]
       });
-      marker = L.marker([tree.lat, tree.lng], { icon: divIcon }).addTo(CH.map);
+      marker = L.marker([tree.lat, tree.lng], { icon: divIcon }).addTo(map);
     } else {
       marker = L.circleMarker([tree.lat, tree.lng], {
         radius: 7,
@@ -198,25 +194,23 @@ const drawUserMarkers = () => {
         weight: 2,
         opacity: 1,
         fillOpacity: 0.85
-      }).addTo(CH.map);
+      }).addTo(map);
     }
 
     marker.bindPopup(buildPopupHtml(tree));
 
-    if (pulse) CH.userMarkerLayers.push(pulse);
-    CH.userMarkerLayers.push(marker);
+    if (pulse) userMarkerLayers.push(pulse);
+    userMarkerLayers.push(marker);
   });
 };
-CH.drawUserMarkers = drawUserMarkers;
 
 // Initial draw
 drawUserMarkers();
 
 // Add Mode Logic
-CH.addingMode = false;
-window.addingMode = CH.addingMode; // legacy
+export let addingMode = false;
 const addSightingBtn = document.getElementById('addSightingBtn');
-const crosshair = document.getElementById('crosshair');
+export const crosshair = document.getElementById('crosshair');
 const placeHereBtn = document.getElementById('placeHereBtn');
 const exportMarkersBtn = document.getElementById('exportMarkersBtn');
 const importMarkersBtn = document.getElementById('importMarkersBtn');
@@ -227,27 +221,27 @@ if (deleteAllMarkersBtn) deleteAllMarkersBtn.onclick = deleteAllUserMarkers;
 // Removed duplicate declaration of addTreeForm to fix JS error
 
 addSightingBtn.onclick = () => {
-  if (!CH.addingMode) {
-    CH.addingMode = true;
+  if (!addingMode) {
+    addingMode = true;
     addSightingBtn.classList.add('adding');
     crosshair.style.display = 'block';
     placeHereBtn.style.display = 'block';
-    CH.map._container.focus();
+    map._container.focus();
   } else {
     cancelAddMode();
   }
 };
 
-const cancelAddMode = () => {
-  CH.addingMode = false;
+export const cancelAddMode = () => {
+  addingMode = false;
   addSightingBtn.classList.remove('adding');
   crosshair.style.display = 'none';
   placeHereBtn.style.display = 'none';
 };
 
 placeHereBtn.onclick = () => {
-  if (!CH.addingMode) return;
-  const center = CH.map.getCenter();
+  if (!addingMode) return;
+  const center = map.getCenter();
   document.getElementById('latInput').value = center.lat;
   document.getElementById('lngInput').value = center.lng;
   addTreeForm.style.display = 'block';
@@ -351,7 +345,7 @@ if (addTreeForm) {
     }
 
     if (editingMarkerId) {
-      const marker = CH.userTrees.find(t => String(t.id) === String(editingMarkerId));
+      const marker = userTrees.find(t => String(t.id) === String(editingMarkerId));
       if (marker) {
         marker.type = type;
         marker.lat = lat;
@@ -367,7 +361,7 @@ if (addTreeForm) {
       const timestamp = Date.now();
       const newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
       if (photoUrl) newTree.photoUrl = photoUrl;
-      CH.userTrees.push(newTree);
+      userTrees.push(newTree);
     }
 
     saveUserTrees();
@@ -387,7 +381,7 @@ if (addTreeForm) {
 }
 
 // --- Edit Marker Logic ---
-CH.map.on('popupopen', e => {
+map.on('popupopen', e => {
   const editBtn = e.popup._contentNode.querySelector('.edit-marker-btn');
   if (editBtn) {
     L.DomEvent.disableClickPropagation(editBtn);
@@ -395,7 +389,7 @@ CH.map.on('popupopen', e => {
       ev.preventDefault();
       ev.stopPropagation();
       const markerId = editBtn.getAttribute('data-id');
-      const marker = CH.userTrees.find(t => String(t.id) === String(markerId));
+      const marker = userTrees.find(t => String(t.id) === String(markerId));
       if (marker) {
         document.getElementById('typeInput').value = marker.type || '';
         document.getElementById('latInput').value = marker.lat;
@@ -411,7 +405,7 @@ CH.map.on('popupopen', e => {
         }
         editingMarkerId = marker.id;
         addTreeForm.style.display = 'block';
-        CH.map.closePopup();
+        map.closePopup();
       }
     });
   }
@@ -423,9 +417,9 @@ CH.map.on('popupopen', e => {
       ev.stopPropagation();
       const markerId = deleteBtn.getAttribute('data-id');
       // Find marker to get photo URL
-      const marker = CH.userTrees.find(t => String(t.id) === String(markerId));
+      const marker = userTrees.find(t => String(t.id) === String(markerId));
       // Remove from userTrees and update localStorage
-      CH.userTrees = CH.userTrees.filter(t => String(t.id) !== String(markerId));
+      userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
       // Remove photo from Firebase Storage if exists
       if (marker && marker.photoUrl) {
@@ -440,7 +434,7 @@ CH.map.on('popupopen', e => {
           // Ignore errors (file may already be gone)
         }
       }
-      CH.map.closePopup();
+      map.closePopup();
       setTimeout(drawUserMarkers, 200);
     });
   }

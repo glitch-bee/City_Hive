@@ -573,25 +573,17 @@
   </form>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-  <script src="main.js"></script>
-  <script src="markers.js"></script>
-  <script src="user_markers.js"></script>
-  <script src="ui.js"></script>
-  <script src="utils.js"></script>
-  <!-- --- BEGIN main.js --- -->
-  <!-- --- END main.js --- -->
-  <!-- --- BEGIN markers.js --- -->
-  <!-- --- END markers.js --- -->
-  <!-- --- BEGIN user_markers.js --- -->
-  <!-- --- END user_markers.js --- -->
-  <!-- --- BEGIN ui.js --- -->
-  <!-- --- END ui.js --- -->
-  <!-- --- BEGIN utils.js --- -->
-  <!-- --- END utils.js --- -->
+  <script src="main.js" type="module"></script>
+  <script src="markers.js" type="module"></script>
+  <script src="user_markers.js" type="module"></script>
+  <script src="ui.js" type="module"></script>
+  <script src="utils.js" type="module"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
   <script src="firebaseConfig.js"></script>
-  <script>
+  <script type="module">
+    import { map } from './main.js';
+    import { markers } from './markers.js';
     const legend = document.getElementById('legend');
     const legendToggleBtn = document.getElementById('legendToggleBtn');
     let legendVisible = true;
@@ -614,14 +606,12 @@
     let treesVisible = true;
     treeToggleBtn.onclick = function() {
       treesVisible = !treesVisible;
-      if (window.markers) {
-        if (treesVisible) {
-          window.map.addLayer(window.markers);
-          treeToggleBtn.style.background = 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)';
-        } else {
-          window.map.removeLayer(window.markers);
-          treeToggleBtn.style.background = 'linear-gradient(90deg,#bbb 60%,#ccc 100%)';
-        }
+      if (treesVisible) {
+        map.addLayer(markers);
+        treeToggleBtn.style.background = 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)';
+      } else {
+        map.removeLayer(markers);
+        treeToggleBtn.style.background = 'linear-gradient(90deg,#bbb 60%,#ccc 100%)';
       }
     };
     const menuBtn = document.getElementById('menuBtn');

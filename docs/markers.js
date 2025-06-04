@@ -1,5 +1,8 @@
-// eslint-disable-next-line no-unused-vars
-var CH = window.CityHive;
+/**
+ * Provides the marker cluster layer for the public tree dataset.
+ * Imports the Leaflet map from main.js.
+ */
+import { map } from './main.js';
 
 /**
  * Returns a color for the given tree species.
@@ -24,12 +27,10 @@ const getColor = species => {
 };
 
 // Marker cluster group (with cluster-click disabled)
-CH.markers = L.markerClusterGroup({
+export const markers = L.markerClusterGroup({
   zoomToBoundsOnClick: false,
   spiderfyOnMaxZoom: true
 });
-// Legacy exposure
-window.markers = CH.markers;
 
 // Load GeoJSON (filtered citywide trees) with cache-busting query param
 fetch(`full_boro_filtered.geojson?v=${Date.now()}`)
@@ -50,6 +51,6 @@ fetch(`full_boro_filtered.geojson?v=${Date.now()}`)
           `ID: ${p.tree_id}<br>Species: ${p.spc_common}<br>DBH: ${p.tree_dbh}`
         );
       }
-    }).eachLayer(layer => CH.markers.addLayer(layer));
-    CH.map.addLayer(CH.markers);
+    }).eachLayer(layer => markers.addLayer(layer));
+    map.addLayer(markers);
   });

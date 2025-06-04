@@ -32,7 +32,7 @@ CH.markers = L.markerClusterGroup({
 window.markers = CH.markers;
 
 // Load GeoJSON (filtered citywide trees) with cache-busting query param
-fetch(`docs/full_boro_filtered.geojson?v=${Date.now()}`)
+fetch(`full_boro_filtered.geojson?v=${Date.now()}`)
   .then(res => res.json())
   .then(data => {
     L.geoJSON(data, {

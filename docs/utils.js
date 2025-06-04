@@ -1,5 +1,5 @@
 /**
- * Placeholder for shared utilities. Extend as needed.
+ * Placeholder for shared utilities.
+ * Exports a flag indicating if Firebase is available.
  */
-var CH = window.CityHive;
-CH.firebaseEnabled = typeof firebase !== 'undefined';
+export const firebaseEnabled = typeof firebase !== 'undefined';

@@ -299,7 +299,7 @@ const clearMarkerError = () => {
 
 const uploadPhoto = async file => {
   if (!CH.firebaseEnabled || !firebase.storage) {
-    console.log('Firebase not enabled - skipping photo upload');
+    console.log('Firebase not enabled - skipping photo upload.');
     return null;
   }
   const maxRetries = 3;

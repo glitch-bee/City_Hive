@@ -1,4 +1,5 @@
 # City_Hive Roadmap
+**Status:** Open Beta
 
 ## Completed Milestones
 
@@ -14,6 +15,7 @@
 - [x] Local Firebase config file for API keys
 - [x] Firebase made optional for offline use
 - [x] Public Firebase config committed for GitHub Pages
+- [x] Open beta release on GitHub Pages
 
 ## In Progress
 
@@ -25,4 +27,4 @@
 - [ ] Timeline or heatmap visualizations
 - [ ] Admin features for club data sharing
 
-_Last updated: 2025-07-02_
+_Last updated: 2025-09-05_

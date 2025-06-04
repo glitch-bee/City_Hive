@@ -1,4 +1,5 @@
-# City_Hive Beekeeper-Focused Roadmap (Summer 2025)
+# City_Hive Beekeeper-Focused Roadmap (Open Beta 2025)
+**Status:** Open Beta
 
 ## Immediate Priorities (Core Usability)
 
@@ -63,12 +64,13 @@
 
 ## Milestones
 
-### MVP (Minimum Viable Product)
+### Beta Milestone
 
 - [X] Users can add, edit, and delete markers (with type, notes, timestamp)
 - [X] Markers can be exported/imported
 - [X] Legend and controls are mobile-friendly
 - [X] Data can be filtered for easy viewing
 - [X] Basic help/instructions available
+- [X] Open beta release on GitHub Pages
 
-_Last updated: Summer 2025_
+_Last updated: Fall 2025_

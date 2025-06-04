@@ -1,4 +1,9 @@
+<p align="center"><img src="docs/cityhive.png" alt="City_Hive Logo" width="120"/></p>
 # City_Hive
+## Project Status
+
+City_Hive is now in open beta. The map and sighting markers work across desktop and mobile, including photo uploads and import/export. Try the demo on [GitHub Pages](https://glitch-bee.github.io/City_Hive/). Bug reports and feedback are welcome.
+
 
 City_Hive is a lightweight mapping tool for beekeepers, researchers and land stewards in New York City. It lets you log hive locations, swarms, cavity trees and other bee-related sites directly in the browser. No server is required &mdash; markers are stored locally so you can use the map offline on your phone or laptop.
 
@@ -24,7 +29,7 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
    ```bash
    pip install pandas geopandas requests geojson shapely matplotlib
    ```
-2. To simply use the map, open `docs/index.html` in a browser. A small web server such as `python -m http.server` is recommended for mobile devices.
+2. To simply use the map, open `docs/index.html` in a browser or visit the demo at https://glitch-bee.github.io/City_Hive/. A small web server such as `python -m http.server` is recommended for mobile devices.
 3. Optional: run the scripts in `scripts/` to generate your own GeoJSON files from NYC Open Data.
 
 ## API Key Setup
@@ -56,4 +61,4 @@ If you prefer not to use Firebase, simply comment out the Firebase scripts in `d
 
 Questions or bug reports? Reach out via the NY Bee Club or open an issue on GitHub.
 
-_Last updated: 2025-07-02_
+_Last updated: 2025-09-05_

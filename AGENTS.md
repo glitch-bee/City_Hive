@@ -7,3 +7,4 @@ This repository is often updated with the help of coding assistants. To keep con
 - There are no automated tests; manually load `docs/index.html` after changes to ensure the map still works.
 - When updating features, also update `README.md` and `Roadmap.md`.
 - Use clear commit messages describing the change.
+- Update README screenshots when the UI changes.

@@ -1,8 +1,8 @@
-# bee_tree Project Notes (MVP Status, June 2025)
+# City_Hive Project Notes (MVP Status, June 2025)
 
 ## Overview
 
-bee_tree is a browser-based dashboard to map feral honey bee sightings and likely cavity trees in NYC, visualized against city tree census data. Built for the NY Bee Club, researchers, and land stewards.  
+City_Hive is a browser-based dashboard to map feral honey bee sightings and likely cavity trees in NYC, visualized against city tree census data. Built for the NY Bee Club, researchers, and land stewards.
 **Tech stack:** Python (data prep), Leaflet.js (frontend map), no backend (MVP), user annotation with localStorage.
 
 ---

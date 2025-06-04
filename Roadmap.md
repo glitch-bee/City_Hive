@@ -2,24 +2,23 @@
 
 ## Completed Milestones
 
-- [x] Editable markers with notes and timestamps
-- [x] Mobile-friendly legend
 - [x] Basic mapping of NYC tree census data
+- [x] Editable markers with notes, photos and timestamps
+- [x] Import/export of user markers as JSON
+- [x] Delete All My Markers option
+- [x] Filtering markers by type
+- [x] Icon set for different marker types
+- [x] Mobile-friendly legend and controls
 - [x] Branded map title and styled default controls
-- [x] Large, touch-friendly controls and help modal
 - [x] Accessibility polish and keyboard navigation
 
 ## In Progress
 
-- [ ] Export user markers as JSON
-- [ ] Import user marker files
-- [ ] Filtering markers by type and date
+- [ ] Date-based filtering of markers
+- [ ] Optional sync/cloud storage across devices
 
 ## Planned / Stretch Goals
 
-- [ ] Icon set for different marker types
-- [ ] Photo upload support (requires storage)
-- [ ] Sync/Cloud storage across devices
 - [ ] Timeline or heatmap visualizations
 - [ ] Admin features for club data sharing
 

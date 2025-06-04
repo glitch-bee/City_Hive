@@ -6,16 +6,18 @@ Thanks for your interest in improving City_Hive! This project is maintained by m
 
 - Open an issue on GitHub for bugs or feature requests.
 - Include as much detail as possible: browser version, steps to reproduce and screenshots if relevant.
+- For any UI issues, attach a screenshot.
 
 ## Pull Requests
 
 1. Fork the repository and create a feature branch.
-2. Follow our coding style:
+2. Run `black` on Python files and open `docs/index.html` to verify the map works.
+3. Follow our coding style:
    - Python files use [black](https://black.readthedocs.io/) formatting and 4‑space indentation.
    - JavaScript files use 2‑space indentation and should pass `prettier` if installed.
-3. Write clear commit messages and reference related issues when possible.
-4. Update documentation (README, Roadmap, etc.) when your change affects them.
-5. Submit a pull request and wait for review by the maintainers.
+4. Write clear commit messages and reference related issues when possible.
+5. Update documentation (README, Roadmap, screenshots, etc.) when your change affects them.
+6. Submit a pull request and wait for review by the maintainers.
 
 There are currently no automated tests, so please test your changes manually:
 

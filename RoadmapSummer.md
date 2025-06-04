@@ -24,15 +24,15 @@
 
 ## Short-Term Upgrades (Field & Data Features)
 
-- [ ] **Export User Markers**
+- [X] **Export User Markers**
   - Add button to export all markers as CSV or JSON.
   - File should include: type, lat, lng, notes, timestamp, id.
 
-- [ ] **Import User Markers**
+- [X] **Import User Markers**
   - Allow importing previously exported marker files.
   - Merge or replace current data after confirmation.
 
-- [ ] **Filter Markers by Type/Date**
+- [ ] **Filter Markers by Type/Date** (type complete, date TBD)
   - Add UI (checkboxes, dropdowns) to show/hide markers by:
     - Type (Hive, Swarm, Structure, etc.)
     - Date or date range
@@ -41,20 +41,20 @@
 
 ## UI/UX Polish
 
-- [ ] **Large, Touch-Friendly Controls**
+- [X] **Large, Touch-Friendly Controls**
   - Ensure all buttons and controls are easy to tap on mobile devices.
 
-- [ ] **Help/Instructions Modal**
+- [X] **Help/Instructions Modal**
   - Add a “?” or “Help” button with clear usage instructions.
 
-- [ ] **Icons for Marker Types**
+- [X] **Icons for Marker Types**
   - Use distinct icons or shapes for hives, swarms, traps, structures, etc.
 
 ---
 
 ## Optional/Stretch Features (for Later)
 
-- [ ] **Photo Upload for Markers** (optional, requires extra storage)
+- [X] **Photo Upload for Markers** (optional, requires extra storage)
 - [ ] **Sync/Cloud Storage (multi-device)** (requires backend)
 - [ ] **Timeline/Heatmap Visualizations**
 - [ ] **Admin Features/Club Data Sharing**
@@ -65,8 +65,10 @@
 
 ### MVP (Minimum Viable Product)
 
-- [ ] Users can add, edit, and delete markers (with type, notes, timestamp)
-- [ ] Markers can be exported/imported
-- [ ] Legend and controls are mobile-friendly
-- [ ] Data can be filtered for easy viewing
-- [ ] Basic help/instructions available
+- [X] Users can add, edit, and delete markers (with type, notes, timestamp)
+- [X] Markers can be exported/imported
+- [X] Legend and controls are mobile-friendly
+- [X] Data can be filtered for easy viewing
+- [X] Basic help/instructions available
+
+_Last updated: Summer 2025_

@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Bee Tree Locator</title>
+  <title>City_Hive</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     #map { height: 100vh; width: 100vw; }
+    #pageTitle { margin-left: 14px; }
   </style>
 </head>
 <body>
+  <h3 id="pageTitle">City_Hive</h3>
   <div id="map"></div>
   <!-- User Tree Input Form -->
   <form id="addTreeForm" style="position:absolute;top:10px;right:10px;z-index:1000;background:#222;padding:10px;color:#fff;display:none;">
@@ -17,8 +19,8 @@
     <label>DBH (cm): <input type="number" id="dbhInput" min="0"></label><br>
     <input type="hidden" id="latInput">
     <input type="hidden" id="lngInput">
-    <button type="submit">Add New Sighting</button>
-    <button type="button" onclick="document.getElementById('addTreeForm').style.display='none'">Cancel</button>
+    <button type="submit" aria-label="Add new sighting">Add New Sighting</button>
+    <button type="button" aria-label="Cancel" onclick="document.getElementById('addTreeForm').style.display='none'">Cancel</button>
   </form>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>

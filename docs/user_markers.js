@@ -255,7 +255,10 @@ placeHereBtn.onclick = () => {
 };
 
 placeHereBtn.addEventListener('keydown', e => {
-  if (e.key === 'Enter') e.preventDefault();
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    placeHereBtn.click();
+  }
 });
 
 // Only declare addTreeForm once at the top of the script or before first use

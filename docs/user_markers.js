@@ -298,6 +298,10 @@ const clearMarkerError = () => {
 };
 
 const uploadPhoto = async file => {
+  if (!CH.firebaseEnabled || !firebase.storage) {
+    console.log('Firebase not enabled - skipping photo upload');
+    return null;
+  }
   const maxRetries = 3;
   let attempt = 0;
   const storageRef = firebase.storage().ref();
@@ -423,7 +427,7 @@ CH.map.on('popupopen', e => {
       CH.userTrees = CH.userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
       // Remove photo from Firebase Storage if exists
-      if (marker && marker.photoUrl) {
+      if (CH.firebaseEnabled && firebase.storage && marker && marker.photoUrl) {
         try {
           // Extract the path from the photoUrl
           const baseUrl = firebase.storage().ref().toString();

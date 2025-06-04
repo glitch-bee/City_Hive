@@ -35,6 +35,62 @@ function exportUserMarkers() {
   }, 0);
 }
 
+function importUserMarkers() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.style.display = 'none';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data)) throw new Error('Invalid format');
+        let changed = false;
+        data.forEach(item => {
+          if (!item || typeof item !== 'object') return;
+          if (typeof item.lat !== 'number' || typeof item.lng !== 'number' || !item.id) return;
+          const {
+            type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl
+          } = item;
+          const existing = window.userTrees.find(t => String(t.id) === String(id));
+          if (existing) {
+            existing.type = type;
+            existing.lat = lat;
+            existing.lng = lng;
+            existing.notes = notes;
+            existing.timestamp = timestamp;
+            existing.name = name;
+            existing.showRadius = showRadius;
+            if (photoUrl) existing.photoUrl = photoUrl;
+          } else {
+            const newTree = { type, lat, lng, notes, timestamp, id, name, showRadius };
+            if (photoUrl) newTree.photoUrl = photoUrl;
+            window.userTrees.push(newTree);
+          }
+          changed = true;
+        });
+        if (changed) {
+          saveUserTrees();
+          drawUserMarkers();
+          alert('Markers imported successfully.');
+        } else {
+          alert('No valid markers found in file.');
+        }
+      } catch (err) {
+        console.error('Import failed', err);
+        alert('Failed to import markers: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
+
 // Remove all previous marker layers
 function clearUserMarkersFromMap() {
   if (window._userMarkerLayers) {
@@ -132,7 +188,9 @@ var addTreeBtn = document.getElementById('addTreeBtn');
 var crosshair = document.getElementById('crosshair');
 var placeHereBtn = document.getElementById('placeHereBtn');
 var exportMarkersBtn = document.getElementById('exportMarkersBtn');
+var importMarkersBtn = document.getElementById('importMarkersBtn');
 if (exportMarkersBtn) exportMarkersBtn.onclick = exportUserMarkers;
+if (importMarkersBtn) importMarkersBtn.onclick = importUserMarkers;
 // Removed duplicate declaration of addTreeForm to fix JS error
 
 addTreeBtn.onclick = function() {

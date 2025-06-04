@@ -7,12 +7,12 @@ const firebaseAvailable = () => {
   try {
     if (typeof firebase !== 'undefined' &&
         firebase.apps && firebase.apps.length > 0 &&
-        firebase.storage) {
+        typeof firebase.storage === 'function') {
       CH.firebaseEnabled = true;
       return true;
     }
   } catch (e) {
-    /* ignore */
+    console.error('Firebase availability check failed:', e);
   }
   CH.firebaseEnabled = false;
   return false;
@@ -320,16 +320,21 @@ const uploadPhoto = async file => {
     console.log('Firebase not enabled - skipping photo upload.');
     return null;
   }
+
+  console.log('Starting photo upload:', file.name, file.size + ' bytes');
   const maxRetries = 3;
   let attempt = 0;
   const storageRef = firebase.storage().ref();
-  const fileName = 'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+  const fileName =
+    'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
   const photoRef = storageRef.child(fileName);
 
   while (attempt < maxRetries) {
     try {
       const snapshot = await photoRef.put(file);
-      return await snapshot.ref.getDownloadURL();
+      const url = await snapshot.ref.getDownloadURL();
+      console.log('Photo uploaded successfully:', url);
+      return url;
     } catch (err) {
       console.error(`Photo upload failed on attempt ${attempt + 1}:`, err);
       attempt++;

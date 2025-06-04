@@ -11,6 +11,7 @@
 - [x] Mobile-friendly legend and controls
 - [x] Branded map title and styled default controls
 - [x] Accessibility polish and keyboard navigation
+- [x] Local Firebase config file for API keys
 
 ## In Progress
 

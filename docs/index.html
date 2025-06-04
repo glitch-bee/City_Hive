@@ -344,8 +344,30 @@
       font-size: 24px;
       cursor: pointer;
     }
-    #pageTitle {
-      margin-left: 14px;
+    #pageHeader {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 10px;
+      flex-wrap: wrap;
+    }
+    #pageHeader img {
+      width: 52px;
+      height: 52px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(110,68,255,0.09);
+    }
+    #pageHeader .title {
+      font-weight: bold;
+    }
+    @media (max-width: 500px) {
+      #pageHeader img {
+        width: 40px;
+        height: 40px;
+      }
+      #pageHeader {
+        gap: 8px;
+      }
     }
     .hidden { display: none; }
     .photo-preview {
@@ -506,7 +528,10 @@
   </style>
 </head>
 <body>
-  <h3 id="pageTitle">City_Hive</h3>
+  <header id="pageHeader">
+    <img src="cityhive.png" alt="City Hive logo">
+    <span class="title">City_Hive</span>
+  </header>
   <button id="addSightingBtn" aria-label="Add new sighting" title="Add a new annotation">+ Add New Sighting</button>
   <button id="exportMarkersBtn" aria-label="Export my markers" title="Download your markers">Export Markers</button>
   <button id="importMarkersBtn" aria-label="Import marker file" title="Load markers from file">Import Markers</button>

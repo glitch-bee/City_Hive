@@ -10,6 +10,7 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 - **Filtering** – show or hide markers by type (Hive, Swarm, Tree, Structure) via checkboxes.
 - **Mobile-Friendly Controls** – gradient-styled buttons with a collapsible menu on small screens, plus a pop‑out legend and a "Locate me" tool for field use.
 - **Local Persistence** – all data is saved in `localStorage` so your notes remain even without a network connection.
+- **Accessible UI** – keyboard-friendly controls with ARIA labels and clear hover states.
 
 ## Installation
 

@@ -31,7 +31,6 @@
       z-index: 1000;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       font-family: inherit;
-      display: block;
     }
     #menuBtn {
       position: absolute;
@@ -345,7 +344,45 @@
       font-size: 24px;
       cursor: pointer;
     }
-    #legendToggleBtn span {
+    #pageTitle {
+      margin-left: 14px;
+    }
+    .hidden { display: none; }
+    .photo-preview {
+      max-width: 100px;
+      max-height: 100px;
+      display: none;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    #treeToggleBtn,
+    #legendToggleBtn {
+      position: absolute;
+      left: 10px;
+      z-index: 1100;
+      background: linear-gradient(90deg, #6e44ff 60%, #00b894 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.13);
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #treeToggleBtn { bottom: 90px; }
+    #legendToggleBtn { bottom: 30px; }
+    button:hover {
+      filter: brightness(1.05);
+    }
+    button:active {
+      transform: scale(0.95);
+    }
+    .icon {
       font-size: 26px;
       line-height: 1;
     }
@@ -452,11 +489,11 @@
   </style>
 </head>
 <body>
-  <h3 style="margin-left: 14px;">City_Hive</h3>
-  <button id="addSightingBtn" title="Add a new annotation">+ Add New Sighting</button>
-  <button id="exportMarkersBtn" title="Download your markers">Export Markers</button>
-  <button id="importMarkersBtn" title="Load markers from file">Import Markers</button>
-  <button id="deleteAllMarkersBtn" title="Delete all of my markers">Delete All My Markers</button>
+  <h3 id="pageTitle">City_Hive</h3>
+  <button id="addSightingBtn" aria-label="Add new sighting" title="Add a new annotation">+ Add New Sighting</button>
+  <button id="exportMarkersBtn" aria-label="Export my markers" title="Download your markers">Export Markers</button>
+  <button id="importMarkersBtn" aria-label="Import marker file" title="Load markers from file">Import Markers</button>
+  <button id="deleteAllMarkersBtn" aria-label="Delete all markers" title="Delete all of my markers">Delete All My Markers</button>
   <div id="typeFilters">
     <label><input type="checkbox" data-type="hive" checked> Hive</label>
     <label><input type="checkbox" data-type="swarm" checked> Swarm</label>
@@ -464,10 +501,12 @@
     <label><input type="checkbox" data-type="structure" checked> Structure</label>
   </div>
   <button id="helpBtn" aria-label="Help">?</button>
-  <div id="helpModal">
+  <div id="helpModal" class="hidden">
     <div class="modal-content">
       <button class="close-btn" aria-label="Close help">&times;</button>
       <p>Use "+ Add New Sighting" to place a marker. Import/Export lets you save or load your markers. Use the checkboxes to filter marker types.</p>
+      <p><small>Your markers are stored only in this browser. Uploaded photos are saved to Firebase.</small></p>
+      <p><small><a href="https://github.com" target="_blank" rel="noopener">Feedback / Bug Reports</a></small></p>
     </div>
   </div>
   <div id="crosshair">
@@ -477,16 +516,16 @@
       <line x1="6" y1="18" x2="30" y2="18" stroke="#00b894" stroke-width="2"/>
     </svg>
   </div>
-  <button id="placeHereBtn">Place Here</button>
+  <button id="placeHereBtn" aria-label="Place marker here">Place Here</button>
   <button id="menuBtn" aria-label="Menu">&#9776;</button>
-  <button id="legendToggleBtn" style="position:absolute;bottom:30px;left:10px;z-index:1100;background:linear-gradient(90deg,#6e44ff 60%,#00b894 100%);color:#fff;border:none;border-radius:50%;width:44px;height:44px;box-shadow:0 2px 10px rgba(0,0,0,0.13);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
-    <span style="font-size:26px;line-height:1;">&#8505;</span>
+  <button id="legendToggleBtn" aria-label="Toggle legend">
+    <span class="icon">&#8505;</span>
   </button>
-  <button id="treeToggleBtn" style="position:absolute;bottom:90px;left:10px;z-index:1100;background:linear-gradient(90deg,#00b894 60%,#6e44ff 100%);color:#fff;border:none;border-radius:50%;width:44px;height:44px;box-shadow:0 2px 10px rgba(0,0,0,0.13);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s;">
-    <span style="font-size:26px;line-height:1;">🌳</span>
+  <button id="treeToggleBtn" aria-label="Toggle tree layer">
+    <span class="icon">🌳</span>
   </button>
   <button id="filterToggleBtn" aria-label="Filter">&#128269;</button>
-  <div id="legend" style="display:none;">
+  <div id="legend" class="hidden">
     <strong>Legend</strong><br>
     <span style="color:#ff6600;">&#9679;</span> Norway maple<br>
     <span style="color:#ffcc00;">&#9679;</span> Sweetgum<br>
@@ -525,7 +564,7 @@
     <label>Photo:<br>
       <input type="file" id="photoInput" accept="image/*" capture="environment">
     </label><br>
-    <img id="photoPreview" style="max-width:100px;max-height:100px;display:none;border-radius:8px;margin-bottom:8px;">
+    <img id="photoPreview" class="photo-preview" alt="Selected photo preview">
     <label><input type="checkbox" id="showRadiusInput" checked> Show radius</label><br>
     <input type="hidden" id="latInput">
     <input type="hidden" id="lngInput">

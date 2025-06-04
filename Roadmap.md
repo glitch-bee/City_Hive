@@ -7,6 +7,7 @@
 - [x] Basic mapping of NYC tree census data
 - [x] Branded map title and styled default controls
 - [x] Large, touch-friendly controls and help modal
+- [x] Accessibility polish and keyboard navigation
 
 ## In Progress
 

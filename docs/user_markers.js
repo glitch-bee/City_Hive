@@ -15,6 +15,26 @@ function saveUserTrees() {
 
 window.userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
 
+function exportUserMarkers() {
+  const data = window.userTrees.map(({type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl}) => {
+    const obj = { type, lat, lng, notes, timestamp, id, name, showRadius };
+    if (photoUrl) obj.photoUrl = photoUrl;
+    return obj;
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const dateStr = new Date().toISOString().split('T')[0];
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `city_hive_user_markers_${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+
 // Remove all previous marker layers
 function clearUserMarkersFromMap() {
   if (window._userMarkerLayers) {
@@ -111,6 +131,8 @@ window.addingMode = false;
 var addTreeBtn = document.getElementById('addTreeBtn');
 var crosshair = document.getElementById('crosshair');
 var placeHereBtn = document.getElementById('placeHereBtn');
+var exportMarkersBtn = document.getElementById('exportMarkersBtn');
+if (exportMarkersBtn) exportMarkersBtn.onclick = exportUserMarkers;
 // Removed duplicate declaration of addTreeForm to fix JS error
 
 addTreeBtn.onclick = function() {

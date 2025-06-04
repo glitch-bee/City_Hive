@@ -6,6 +6,7 @@
 - [x] Mobile-friendly legend
 - [x] Basic mapping of NYC tree census data
 - [x] Branded map title and styled default controls
+- [x] Large, touch-friendly controls and help modal
 
 ## In Progress
 
@@ -15,7 +16,6 @@
 
 ## Planned / Stretch Goals
 
-- [ ] Large, touch-friendly controls and help modal
 - [ ] Icon set for different marker types
 - [ ] Photo upload support (requires storage)
 - [ ] Sync/Cloud storage across devices

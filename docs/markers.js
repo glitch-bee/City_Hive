@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const CH = window.CityHive = window.CityHive || {};
+var CH = window.CityHive;
 
 /**
  * Returns a color for the given tree species.

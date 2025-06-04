@@ -1,5 +1,5 @@
 // --- User Marker Logic ---
-const CH = window.CityHive = window.CityHive || {};
+var CH = window.CityHive;
 
 /**
  * Return the pulse color for a given marker type.

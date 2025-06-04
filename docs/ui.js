@@ -39,12 +39,9 @@ document.addEventListener('keydown', e => {
 // Add a simple 'Locate Me' button
 const locateBtn = L.control({ position: 'topleft' });
 locateBtn.onAdd = map => {
-  const btn = L.DomUtil.create('button', 'leaflet-bar');
+  const btn = L.DomUtil.create('button', 'leaflet-bar locate-btn');
   btn.innerHTML = '📍';
   btn.title = 'Show My Location';
-  btn.style.background = '#fff';
-  btn.style.padding = '6px 10px';
-  btn.style.fontSize = '18px';
   btn.onclick = () => {
     map.locate({ setView: true, maxZoom: 17 });
   };

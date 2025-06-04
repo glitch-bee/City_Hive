@@ -1,7 +1,7 @@
 # City_Hive
 
 City_Hive is a lightweight mapping tool for beekeepers, researchers and land stewards in New York City. It lets you log hive locations, swarms, cavity trees and other bee-related sites directly in the browser. No server is required &mdash; markers are stored locally so you can use the map offline on your phone or laptop.
-![Screenshot showing City_Hive interface](docs/screenshot.png)
+
 
 
 ## Key Features

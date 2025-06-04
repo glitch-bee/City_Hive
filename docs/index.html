@@ -22,7 +22,7 @@
     }
     #legend {
       position: absolute;
-      bottom: 150px;
+      bottom: 200px;
       left: 10px;
       background: rgba(255,255,255,0.97);
       padding: 16px 18px;
@@ -31,6 +31,7 @@
       z-index: 1000;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       font-family: inherit;
+      display: block;
     }
     #addSightingBtn {
       position: absolute;
@@ -67,6 +68,63 @@
       transition: background 0.2s, color 0.2s;
       font-weight: 600;
       letter-spacing: 0.5px;
+    }
+    #importMarkersBtn {
+      position: absolute;
+      top: 220px;
+      left: 10px;
+      z-index: 1200;
+      background: linear-gradient(90deg, #6e44ff 60%, #00b894 100%);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+      transition: background 0.2s, color 0.2s;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    #deleteAllMarkersBtn {
+      position: absolute;
+      top: 260px;
+      left: 10px;
+      z-index: 1200;
+      background: linear-gradient(90deg, #ff6e44 60%, #fdcb6e 100%);
+      color: #222;
+      border: none;
+      border-radius: 16px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+      transition: background 0.2s;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    #importMarkersBtn,
+    #exportMarkersBtn,
+    #deleteAllMarkersBtn,
+    #addSightingBtn { min-height: 44px; }
+
+    #typeFilters {
+      position: absolute;
+      top: 320px;
+      left: 10px;
+      z-index: 1200;
+      background: rgba(255,255,255,0.97);
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      font-size: 14px;
+      font-family: inherit;
+    }
+    #typeFilters label {
+      display: block;
+      margin-bottom: 4px;
     }
     #addSightingBtn.adding {
       background: linear-gradient(90deg, #fdcb6e 60%, #ff6e44 100%);
@@ -201,6 +259,54 @@
       cursor: pointer;
       transition: background 0.2s;
     }
+    #helpBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1200;
+      background: linear-gradient(90deg,#6e44ff 60%,#00b894 100%);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.13);
+    }
+    #helpModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1500;
+      align-items: center;
+      justify-content: center;
+    }
+    #helpModal .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 14px;
+      max-width: 320px;
+      width: 90%;
+      color: #222;
+      position: relative;
+    }
+    #helpModal .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
     #legendToggleBtn span {
       font-size: 26px;
       line-height: 1;
@@ -269,7 +375,10 @@
     @media (max-width: 600px) {
       #addSightingBtn { top: 130px; }
       #exportMarkersBtn { top: 190px; }
-      #legend { bottom: 170px; }
+      #importMarkersBtn { top: 230px; }
+      #deleteAllMarkersBtn { top: 270px; }
+      #typeFilters { top: 330px; }
+      #legend { bottom: 180px; }
     }
   </style>
 </head>
@@ -278,6 +387,20 @@
   <button id="addSightingBtn" title="Add a new annotation">+ Add New Sighting</button>
   <button id="exportMarkersBtn" title="Download your markers">Export Markers</button>
   <button id="importMarkersBtn" title="Load markers from file">Import Markers</button>
+  <button id="deleteAllMarkersBtn" title="Delete all of my markers">Delete All My Markers</button>
+  <div id="typeFilters">
+    <label><input type="checkbox" data-type="hive" checked> Hive</label>
+    <label><input type="checkbox" data-type="swarm" checked> Swarm</label>
+    <label><input type="checkbox" data-type="tree" checked> Tree</label>
+    <label><input type="checkbox" data-type="structure" checked> Structure</label>
+  </div>
+  <button id="helpBtn" aria-label="Help">?</button>
+  <div id="helpModal">
+    <div class="modal-content">
+      <button class="close-btn" aria-label="Close help">&times;</button>
+      <p>Use "+ Add New Sighting" to place a marker. Import/Export lets you save or load your markers. Use the checkboxes to filter marker types.</p>
+    </div>
+  </div>
   <div id="crosshair">
     <svg width="36" height="36">
       <circle cx="18" cy="18" r="13" stroke="#00b894" stroke-width="2.5" fill="none"/>
@@ -307,7 +430,9 @@
     <span style="color:#009966;">&#9679;</span> American elm<br>
     <span style="color:#ff3366;">&#9679;</span> Other<br>
     <span class="legend-icon"><svg width="20" height="20" viewBox="0 0 28 28"><ellipse cx="14" cy="20" rx="8" ry="5" fill="#ffb300" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="15" rx="6" ry="4" fill="#ffd54f" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="11" rx="4" ry="3" fill="#ffe082" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="8" rx="2.5" ry="2" fill="#fffde7" stroke="#b26a00" stroke-width="2"/></svg></span> User Hive<br>
-    <span class="legend-icon"><svg width="20" height="20" viewBox="0 0 28 28"><circle cx="9" cy="15" r="3" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="9" cy="13.5" rx="1.2" ry="2.2" fill="#fff" stroke="#6e4400" stroke-width="0.7"/><circle cx="14" cy="11" r="2.2" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="14" cy="9.7" rx="0.9" ry="1.7" fill="#fff" stroke="#6e4400" stroke-width="0.7"/><circle cx="18" cy="17" r="2.1" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="18" cy="15.7" rx="0.8" ry="1.5" fill="#fff" stroke="#6e4400" stroke-width="0.7"/></svg></span> User Swarm
+    <span class="legend-icon"><svg width="20" height="20" viewBox="0 0 28 28"><circle cx="9" cy="15" r="3" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="9" cy="13.5" rx="1.2" ry="2.2" fill="#fff" stroke="#6e4400" stroke-width="0.7"/><circle cx="14" cy="11" r="2.2" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="14" cy="9.7" rx="0.9" ry="1.7" fill="#fff" stroke="#6e4400" stroke-width="0.7"/><circle cx="18" cy="17" r="2.1" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="18" cy="15.7" rx="0.8" ry="1.5" fill="#fff" stroke="#6e4400" stroke-width="0.7"/></svg></span> User Swarm<br>
+    <span class="legend-icon"><svg width="20" height="20" viewBox="0 0 28 28"><ellipse cx="14" cy="14" rx="7" ry="8" fill="#44ff6e" stroke="#1b5e20" stroke-width="2"/><rect x="12" y="18" width="4" height="6" fill="#8d6e63" stroke="#5d4037" stroke-width="1.2"/></svg></span> User Tree<br>
+    <span class="legend-icon"><svg width="20" height="20" viewBox="0 0 28 28"><rect x="7" y="14" width="14" height="8" fill="#ffaa00" stroke="#6e4400" stroke-width="2"/><polygon points="14,6 6,14 22,14" fill="#ffe082" stroke="#6e4400" stroke-width="2"/></svg></span> User Structure
   </div>
   <div id="map"></div>
   <!-- User Tree Input Form -->
@@ -374,7 +499,8 @@
   <script>
     const legend = document.getElementById('legend');
     const legendToggleBtn = document.getElementById('legendToggleBtn');
-    let legendVisible = false;
+    let legendVisible = true;
+    legend.style.display = 'block';
     legendToggleBtn.onclick = function() {
       legendVisible = !legendVisible;
       legend.style.display = legendVisible ? 'block' : 'none';

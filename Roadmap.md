@@ -5,6 +5,7 @@
 - [x] Editable markers with notes and timestamps
 - [x] Mobile-friendly legend
 - [x] Basic mapping of NYC tree census data
+- [x] Branded map title and styled default controls
 
 ## In Progress
 

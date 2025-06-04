@@ -13,6 +13,7 @@
 - [x] Accessibility polish and keyboard navigation
 - [x] Local Firebase config file for API keys
 - [x] Firebase made optional for offline use
+- [x] Public Firebase config committed for GitHub Pages
 
 ## In Progress
 

@@ -29,15 +29,10 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 
 ## API Key Setup
 
-City_Hive uses Firebase Storage for photo uploads. The app loads your
-credentials from `docs/firebaseConfig.local.js`, which is ignored by Git.
-
-1. Copy `docs/firebaseConfig.local.example.js` to `docs/firebaseConfig.local.js`.
-2. Edit the new file and enter your Firebase keys.
-3. Serve `docs/` with a small web server.
-
-Only store this key on your machine. **Do not commit real API keys** to the
-repository.
+City_Hive uses Firebase Storage for photo uploads. The public demo includes
+`docs/firebaseConfig.js` with a limited API key. If you deploy your own copy,
+replace that file with your own Firebase config and ensure your Storage rules
+restrict writes to authenticated users.
 If you prefer not to use Firebase, simply comment out the Firebase scripts in `docs/index.html` and the app will skip photo uploads.
 
 ## Usage

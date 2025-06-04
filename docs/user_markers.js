@@ -1,23 +1,6 @@
 // --- User Marker Logic ---
 var CH = window.CityHive;
 
-// Check if Firebase is available at runtime. This is needed because the
-// Firebase scripts load after this file when running with local config.
-const firebaseAvailable = () => {
-  try {
-    if (typeof firebase !== 'undefined' &&
-        firebase.apps && firebase.apps.length > 0 &&
-        typeof firebase.storage === 'function') {
-      CH.firebaseEnabled = true;
-      return true;
-    }
-  } catch (e) {
-    console.error('Firebase availability check failed:', e);
-  }
-  CH.firebaseEnabled = false;
-  return false;
-};
-
 /**
  * Return the pulse color for a given marker type.
  * @param {string} type
@@ -315,11 +298,6 @@ const clearMarkerError = () => {
 };
 
 const uploadPhoto = async file => {
-  // Detect Firebase on demand in case scripts loaded after this file.
-  if (!firebaseAvailable()) {
-    console.log('Firebase not enabled - skipping photo upload.');
-    return null;
-  }
 
   console.log('Starting photo upload:', file.name, file.size + ' bytes');
   const maxRetries = 3;
@@ -450,7 +428,7 @@ CH.map.on('popupopen', e => {
       CH.userTrees = CH.userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
       // Remove photo from Firebase Storage if exists
-      if (firebaseAvailable() && marker && marker.photoUrl) {
+      if (marker && marker.photoUrl) {
         try {
           // Extract the path from the photoUrl
           const baseUrl = firebase.storage().ref().toString();

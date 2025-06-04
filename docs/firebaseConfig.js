@@ -1,4 +1,6 @@
-// Copy this file to firebaseConfig.local.js and fill in your Firebase credentials
+// Public Firebase configuration used by the GitHub Pages build.
+// The API key below is safe to expose but be sure your
+// Firebase Storage rules restrict writes to authenticated users.
 const firebaseConfig = {
   apiKey: "AIzaSyBxuqejpdAdgltobX7tFD_Du6UE9_dTp_c",
   authDomain: "city-hive-90f1e.firebaseapp.com",

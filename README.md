@@ -8,7 +8,7 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 - **Import/Export** – download your markers as JSON and load them again on another device.
 - **Photo Uploads** – attach a photo (up to 5&nbsp;MB) to a marker. Images are stored in Firebase.
 - **Filtering** – show or hide markers by type (Hive, Swarm, Tree, Structure) via checkboxes.
-- **Mobile-Friendly Controls** – gradient-styled buttons, a pop‑out legend and a "Locate me" tool for field use.
+- **Mobile-Friendly Controls** – gradient-styled buttons with a collapsible menu on small screens, plus a pop‑out legend and a "Locate me" tool for field use.
 - **Local Persistence** – all data is saved in `localStorage` so your notes remain even without a network connection.
 
 ## Installation

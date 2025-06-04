@@ -59,6 +59,6 @@ If you prefer not to use Firebase, simply comment out the Firebase scripts in `d
 
 ## Contact
 
-Questions or bug reports? Reach out via the NY Bee Club or open an issue on GitHub.
+Questions or bug reports? Reach out via the NY Bee Club ( pres.qns@nybeeclub.org ) or open an issue on GitHub.
 
 _Last updated: 2025-09-05_

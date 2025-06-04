@@ -2,7 +2,7 @@
  * Application namespace used to avoid polluting the global scope.
  * Other scripts attach their exports to this object.
  */
-const CH = window.CityHive = window.CityHive || {};
+var CH = window.CityHive = window.CityHive || {};
 
 /**
  * Initialize the Leaflet map and muted basemap layer.

@@ -1,4 +1,4 @@
-const CH = window.CityHive = window.CityHive || {};
+var CH = window.CityHive;
 
 // Disable cluster click-to-zoom (uncluster only on zoom level)
 CH.markers.on('clusterclick', a => {

@@ -26,6 +26,17 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 2. To simply use the map, open `docs/index.html` in a browser. A small web server such as `python -m http.server` is recommended for mobile devices.
 3. Optional: run the scripts in `scripts/` to generate your own GeoJSON files from NYC Open Data.
 
+## API Key Setup
+
+City_Hive uses Firebase Storage for photo uploads. The sample configuration in
+`docs/index.html` contains a placeholder key. To use uploads locally:
+
+1. Create a project in the Google Cloud Console and enable Firebase.
+2. Generate a Web API key and restrict it to your authorized domains.
+3. Replace `YOUR_API_KEY_HERE` in the Firebase config with your key.
+
+Only store this key on your machine. **Do not commit real API keys** to the repository.
+
 ## Usage
 
 - **Open the map** – navigate to `docs/index.html` in your browser.

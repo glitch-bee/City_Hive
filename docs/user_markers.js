@@ -184,7 +184,7 @@ drawUserMarkers();
 
 // Add Mode Logic
 window.addingMode = false;
-var addTreeBtn = document.getElementById('addTreeBtn');
+var addSightingBtn = document.getElementById('addSightingBtn');
 var crosshair = document.getElementById('crosshair');
 var placeHereBtn = document.getElementById('placeHereBtn');
 var exportMarkersBtn = document.getElementById('exportMarkersBtn');
@@ -193,10 +193,10 @@ if (exportMarkersBtn) exportMarkersBtn.onclick = exportUserMarkers;
 if (importMarkersBtn) importMarkersBtn.onclick = importUserMarkers;
 // Removed duplicate declaration of addTreeForm to fix JS error
 
-addTreeBtn.onclick = function() {
+addSightingBtn.onclick = function() {
   if (!window.addingMode) {
     window.addingMode = true;
-    addTreeBtn.classList.add('adding');
+    addSightingBtn.classList.add('adding');
     crosshair.style.display = 'block';
     placeHereBtn.style.display = 'block';
     window.map._container.focus();
@@ -207,7 +207,7 @@ addTreeBtn.onclick = function() {
 
 function cancelAddMode() {
   window.addingMode = false;
-  addTreeBtn.classList.remove('adding');
+  addSightingBtn.classList.remove('adding');
   crosshair.style.display = 'none';
   placeHereBtn.style.display = 'none';
 }

@@ -22,7 +22,7 @@
     }
     #legend {
       position: absolute;
-      bottom: 30px;
+      bottom: 150px;
       left: 10px;
       background: rgba(255,255,255,0.97);
       padding: 16px 18px;
@@ -32,9 +32,9 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       font-family: inherit;
     }
-    #addTreeBtn {
+    #addSightingBtn {
       position: absolute;
-      top: 10px;
+      top: 120px;
       left: 10px;
       z-index: 1200;
       background: linear-gradient(90deg, #00b894 60%, #6e44ff 100%);
@@ -52,7 +52,7 @@
     }
     #exportMarkersBtn {
       position: absolute;
-      top: 60px;
+      top: 180px;
       left: 10px;
       z-index: 1200;
       background: linear-gradient(90deg, #6e44ff 60%, #00b894 100%);
@@ -68,7 +68,7 @@
       font-weight: 600;
       letter-spacing: 0.5px;
     }
-    #addTreeBtn.adding {
+    #addSightingBtn.adding {
       background: linear-gradient(90deg, #fdcb6e 60%, #ff6e44 100%);
       color: #222;
       cursor: crosshair;
@@ -259,11 +259,23 @@
       justify-content: center;
       padding: 0;
     }
+    .legend-icon {
+      display: inline-block;
+      vertical-align: middle;
+      width: 20px;
+      height: 20px;
+      margin-right: 4px;
+    }
+    @media (max-width: 600px) {
+      #addSightingBtn { top: 130px; }
+      #exportMarkersBtn { top: 190px; }
+      #legend { bottom: 170px; }
+    }
   </style>
 </head>
 <body>
   <h3 style="margin-left: 14px;">bee_tree</h3>
-  <button id="addTreeBtn" title="Add a new annotation">+ Add Tree</button>
+  <button id="addSightingBtn" title="Add a new annotation">+ Add New Sighting</button>
   <button id="exportMarkersBtn" title="Download your markers">Export Markers</button>
   <button id="importMarkersBtn" title="Load markers from file">Import Markers</button>
   <div id="crosshair">
@@ -294,8 +306,8 @@
     <span style="color:#004d00;">&#9679;</span> Black locust<br>
     <span style="color:#009966;">&#9679;</span> American elm<br>
     <span style="color:#ff3366;">&#9679;</span> Other<br>
-    <span style="color:#6e44ff;">&#9679;</span> User Hive<br>
-    <span style="color:#ff6e44;">&#9679;</span> User Swarm
+    <span class="legend-icon"><svg width="20" height="20" viewBox="0 0 28 28"><ellipse cx="14" cy="20" rx="8" ry="5" fill="#ffb300" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="15" rx="6" ry="4" fill="#ffd54f" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="11" rx="4" ry="3" fill="#ffe082" stroke="#b26a00" stroke-width="2"/><ellipse cx="14" cy="8" rx="2.5" ry="2" fill="#fffde7" stroke="#b26a00" stroke-width="2"/></svg></span> User Hive<br>
+    <span class="legend-icon"><svg width="20" height="20" viewBox="0 0 28 28"><circle cx="9" cy="15" r="3" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="9" cy="13.5" rx="1.2" ry="2.2" fill="#fff" stroke="#6e4400" stroke-width="0.7"/><circle cx="14" cy="11" r="2.2" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="14" cy="9.7" rx="0.9" ry="1.7" fill="#fff" stroke="#6e4400" stroke-width="0.7"/><circle cx="18" cy="17" r="2.1" fill="#ffb300" stroke="#6e4400" stroke-width="1.2"/><ellipse cx="18" cy="15.7" rx="0.8" ry="1.5" fill="#fff" stroke="#6e4400" stroke-width="0.7"/></svg></span> User Swarm
   </div>
   <div id="map"></div>
   <!-- User Tree Input Form -->

@@ -73,6 +73,16 @@ CH.saveUserTrees = saveUserTrees;
 CH.userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
 window.userTrees = CH.userTrees;
 
+CH.activeTypes = { hive: true, swarm: true, tree: true, structure: true };
+const filterCheckboxes = document.querySelectorAll('#typeFilters input[type="checkbox"]');
+filterCheckboxes.forEach(cb => {
+  CH.activeTypes[cb.dataset.type] = cb.checked;
+  cb.addEventListener('change', () => {
+    CH.activeTypes[cb.dataset.type] = cb.checked;
+    drawUserMarkers();
+  });
+});
+
 const exportUserMarkers = () => {
   const data = CH.userTrees.map(({type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl}) => {
     const obj = { type, lat, lng, notes, timestamp, id, name, showRadius };
@@ -143,6 +153,15 @@ const importUserMarkers = () => {
 };
 CH.importUserMarkers = importUserMarkers;
 
+const deleteAllUserMarkers = () => {
+  if (!confirm('Delete ALL your markers?')) return;
+  CH.userTrees = [];
+  window.userTrees = CH.userTrees;
+  saveUserTrees();
+  drawUserMarkers();
+};
+CH.deleteAllUserMarkers = deleteAllUserMarkers;
+
 // Remove all previous marker layers
 const clearUserMarkersFromMap = () => {
   if (CH.userMarkerLayers) {
@@ -156,6 +175,7 @@ CH.clearUserMarkersFromMap = clearUserMarkersFromMap;
 const drawUserMarkers = () => {
   clearUserMarkersFromMap();
   CH.userTrees.forEach(tree => {
+    if (CH.activeTypes && CH.activeTypes[tree.type || 'hive'] === false) return;
     const color = getPulseColor(tree.type);
     const pulse = createPulseCircle(tree, color);
 
@@ -200,8 +220,10 @@ const crosshair = document.getElementById('crosshair');
 const placeHereBtn = document.getElementById('placeHereBtn');
 const exportMarkersBtn = document.getElementById('exportMarkersBtn');
 const importMarkersBtn = document.getElementById('importMarkersBtn');
+const deleteAllMarkersBtn = document.getElementById('deleteAllMarkersBtn');
 if (exportMarkersBtn) exportMarkersBtn.onclick = exportUserMarkers;
 if (importMarkersBtn) importMarkersBtn.onclick = importUserMarkers;
+if (deleteAllMarkersBtn) deleteAllMarkersBtn.onclick = deleteAllUserMarkers;
 // Removed duplicate declaration of addTreeForm to fix JS error
 
 addSightingBtn.onclick = () => {
@@ -239,6 +261,20 @@ placeHereBtn.addEventListener('keydown', e => {
 // Only declare addTreeForm once at the top of the script or before first use
 const addTreeForm = document.getElementById('addTreeForm');
 let editingMarkerId = null;
+const photoInputEl = document.getElementById('photoInput');
+const photoPreview = document.getElementById('photoPreview');
+if (photoInputEl) {
+  photoInputEl.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      photoPreview.src = URL.createObjectURL(file);
+      photoPreview.style.display = 'block';
+    } else {
+      photoPreview.src = '';
+      photoPreview.style.display = 'none';
+    }
+  });
+}
 
 // Add error message display below the form
 let errorMsg = document.createElement('div');
@@ -337,6 +373,7 @@ if (addTreeForm) {
   addTreeForm.querySelector('button[type="button"]').onclick = () => {
     addTreeForm.style.display = 'none';
     editingMarkerId = null;
+    photoPreview.style.display = 'none';
     clearMarkerError();
   };
 }
@@ -358,6 +395,12 @@ CH.map.on('popupopen', e => {
         document.getElementById('nameInput').value = marker.name || '';
         document.getElementById('notesInput').value = marker.notes || '';
         document.getElementById('showRadiusInput').checked = marker.showRadius !== false;
+        if (marker.photoUrl) {
+          photoPreview.src = marker.photoUrl;
+          photoPreview.style.display = 'block';
+        } else {
+          photoPreview.style.display = 'none';
+        }
         editingMarkerId = marker.id;
         addTreeForm.style.display = 'block';
         CH.map.closePopup();

@@ -17,6 +17,25 @@ document.addEventListener('keydown', e => {
   }
 });
 
+const helpBtn = document.getElementById('helpBtn');
+const helpModal = document.getElementById('helpModal');
+const closeHelp = () => { if (helpModal) helpModal.style.display = 'none'; };
+if (helpBtn && helpModal) {
+  helpBtn.addEventListener('click', () => {
+    helpModal.style.display = 'flex';
+  });
+  helpModal.querySelector('.close-btn').addEventListener('click', closeHelp);
+  helpModal.addEventListener('click', e => { if (e.target === helpModal) closeHelp(); });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const form = document.getElementById('addTreeForm');
+    if (form && form.style.display === 'block') form.style.display = 'none';
+    if (helpModal && helpModal.style.display !== 'none') closeHelp();
+  }
+});
+
 // Add a simple 'Locate Me' button
 const locateBtn = L.control({ position: 'topleft' });
 locateBtn.onAdd = map => {

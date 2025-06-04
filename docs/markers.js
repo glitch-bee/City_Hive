@@ -1,5 +1,12 @@
-// Species color mapping
-function getColor(species) {
+// eslint-disable-next-line no-unused-vars
+const CH = window.CityHive = window.CityHive || {};
+
+/**
+ * Returns a color for the given tree species.
+ * @param {string} species
+ * @returns {string}
+ */
+const getColor = species => {
   switch ((species || '').toLowerCase()) {
     case 'norway maple': return '#ff6600';
     case 'sweetgum': return '#ffcc00';
@@ -14,37 +21,35 @@ function getColor(species) {
     case 'american elm': return '#009966';
     default: return '#ff3366';
   }
-}
+};
 
 // Marker cluster group (with cluster-click disabled)
-window.markers = L.markerClusterGroup({
+CH.markers = L.markerClusterGroup({
   zoomToBoundsOnClick: false,
   spiderfyOnMaxZoom: true
 });
+// Legacy exposure
+window.markers = CH.markers;
 
 // Load GeoJSON (filtered citywide trees) with cache-busting query param
-fetch('full_boro_filtered.geojson?v=' + new Date().getTime())
+fetch(`full_boro_filtered.geojson?v=${Date.now()}`)
   .then(res => res.json())
   .then(data => {
     L.geoJSON(data, {
-      pointToLayer: function(feature, latlng) {
-        return L.circleMarker(latlng, {
-          radius: 5,
-          fillColor: getColor(feature.properties.spc_common),
-          color: getColor(feature.properties.spc_common),
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        });
-      },
-      onEachFeature: function(feature, layer) {
-        let p = feature.properties;
+      pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
+        radius: 5,
+        fillColor: getColor(feature.properties.spc_common),
+        color: getColor(feature.properties.spc_common),
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+      }),
+      onEachFeature: (feature, layer) => {
+        const p = feature.properties;
         layer.bindPopup(
           `ID: ${p.tree_id}<br>Species: ${p.spc_common}<br>DBH: ${p.tree_dbh}`
         );
       }
-    }).eachLayer(function(layer) {
-      window.markers.addLayer(layer);
-    });
-    window.map.addLayer(window.markers);
+    }).eachLayer(layer => CH.markers.addLayer(layer));
+    CH.map.addLayer(CH.markers);
   });

@@ -1,9 +1,7 @@
 /**
  * UI helpers that interact with the map and user marker logic.
  */
-import { map } from './main.js';
-import { markers } from './markers.js';
-import { addingMode, cancelAddMode, crosshair } from './user_markers.js';
+// expects `map`, `markers`, `addingMode`, `cancelAddMode`, and `crosshair` on the window object
 
 // Disable cluster click-to-zoom (uncluster only on zoom level)
 markers.on('clusterclick', a => {

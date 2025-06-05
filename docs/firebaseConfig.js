@@ -1,9 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getStorage } from 'firebase/storage';
-import { getFirestore, initializeFirestore } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-
-export const firebaseConfig = {
+// Public Firebase configuration used by the Firebase Hosting build.
+// The API key below is safe to expose but be sure your
+// Firebase Storage rules restrict writes to authenticated users.
+const firebaseConfig = {
   apiKey: "AIzaSyBxuqejpdAdgltobX7tFD_Du6UE9_dTp_c",
   authDomain: "city-hive-90f1e.firebaseapp.com",
   projectId: "city-hive-90f1e",
@@ -13,12 +11,14 @@ export const firebaseConfig = {
   measurementId: "G-LY3CH0HXDK"
 };
 
-export const app = initializeApp(firebaseConfig);
-initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
-export const storage = getStorage(app);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+const db = firebase.firestore();
+const auth = firebase.auth();
+window.storage = storage;
+window.db = db;
+window.auth = auth;
 
-onAuthStateChanged(auth, user => {
-  if (!user) signInAnonymously(auth).catch(console.error);
+auth.onAuthStateChanged(user => {
+  if (!user) auth.signInAnonymously().catch(console.error);
 });

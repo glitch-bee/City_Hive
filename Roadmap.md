@@ -22,7 +22,6 @@
 - [x] Open beta release (initially on GitHub Pages, now hosted on Firebase)
 - [x] Basic Firestore sync of user markers
 - [x] Markers stored in Firestore instead of localStorage
-- [x] Migrated to ES module syntax and Firebase Modular SDK
 
 ## In Progress
 

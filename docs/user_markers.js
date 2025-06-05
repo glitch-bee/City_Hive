@@ -1,51 +1,40 @@
 // --- User Marker Logic ---
 // Provides creation and management of user-added markers on the map.
-// Expects a Leaflet map instance and Firebase modules passed in
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  onSnapshot
-} from 'firebase/firestore';
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject
-} from 'firebase/storage';
-import {
-  onAuthStateChanged,
-  signInAnonymously
-} from 'firebase/auth';
+// expects `map` and firebase variables on the global window object
 
-export function initUserMarkers(map, { db, storage, auth }) {
-let firebaseEnabled = true;
+const firebaseAvailable = typeof firebase !== 'undefined';
+window.firebaseEnabled = firebaseAvailable;
 
 let markersRef = null;
 let currentUserId = null;
+window.currentUserId = currentUserId;
+window.markersRef = markersRef;
 
 const subscribeToMarkers = () => {
   if (!markersRef) return;
-  onSnapshot(
-    markersRef,
+  markersRef.onSnapshot(
     snap => {
       userTrees = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      window.userTrees = userTrees;
       drawUserMarkers();
     },
     err => console.error('Firestore listen failed', err)
   );
 };
+window.subscribeToMarkers = subscribeToMarkers;
 
-if (firebaseEnabled && auth && db) {
-  onAuthStateChanged(auth, user => {
+if (window.firebaseEnabled && window.auth && window.db) {
+  window.auth.onAuthStateChanged(user => {
     if (user) {
       currentUserId = user.uid;
-      markersRef = collection(db, 'markers');
+      window.currentUserId = currentUserId;
+      markersRef = window.db.collection('markers');
+      window.markersRef = markersRef;
       subscribeToMarkers();
     } else {
-      signInAnonymously(auth).catch(console.error);
+      window.auth
+        .signInAnonymously()
+        .catch(console.error);
     }
   });
 }
@@ -63,6 +52,7 @@ const getPulseColor = type => {
     default: return '#6e44ff';
   }
 };
+window.getPulseColor = getPulseColor;
 
 /**
  * Create the Leaflet circle used as a radius indicator.
@@ -78,8 +68,9 @@ const createPulseCircle = (tree, color) => {
     weight: 1,
     opacity: 0.35,
     interactive: false
-  }).addTo(map);
+  }).addTo(window.map);
 };
+window.createPulseCircle = createPulseCircle;
 
 /**
  * Returns SVG markup for the marker icon based on type.
@@ -98,6 +89,7 @@ const getIconHtml = type => {
       return '';
   }
 };
+window.getIconHtml = getIconHtml;
 
 /** Build the popup HTML for a user marker. */
 const buildPopupHtml = tree => {
@@ -115,11 +107,14 @@ const buildPopupHtml = tree => {
   }
   return html;
 };
+window.buildPopupHtml = buildPopupHtml;
 
 // In-memory cache of marker documents
 let userTrees = [];
+window.userTrees = userTrees;
 
 let activeTypes = { hive: true, swarm: true, tree: true, structure: true };
+window.activeTypes = activeTypes;
 
 let userMarkerLayers = [];
 const filterCheckboxes = document.querySelectorAll('#typeFilters input[type="checkbox"]');
@@ -152,6 +147,7 @@ const exportUserMarkers = () => {
     URL.revokeObjectURL(url);
   }, 0);
 };
+window.exportUserMarkers = exportUserMarkers;
 
 const importUserMarkers = () => {
   const input = document.createElement('input');
@@ -175,17 +171,17 @@ const importUserMarkers = () => {
           if (existing && existing.userId === currentUserId) {
             Object.assign(existing, { type, lat, lng, notes, timestamp, name, showRadius });
             if (photoUrl) existing.photoUrl = photoUrl;
-            if (firebaseEnabled && markersRef) {
+            if (window.firebaseEnabled && markersRef) {
               const updateData = { type, lat, lng, notes, timestamp, name, showRadius };
               if (photoUrl) updateData.photoUrl = photoUrl;
-              updateDoc(doc(markersRef, existing.id), updateData).catch(console.error);
+              markersRef.doc(existing.id).update(updateData).catch(console.error);
             }
           } else if (!existing) {
             const newTree = { type, lat, lng, notes, timestamp, name, showRadius, userId: currentUserId };
             if (photoUrl) newTree.photoUrl = photoUrl;
-              if (firebaseEnabled && markersRef) {
+              if (window.firebaseEnabled && markersRef) {
               try {
-                const docRef = await addDoc(markersRef, newTree);
+                const docRef = await markersRef.add(newTree);
                 newTree.id = docRef.id;
               } catch (err) {
                 console.error(err);
@@ -215,23 +211,28 @@ const importUserMarkers = () => {
   input.click();
   document.body.removeChild(input);
 };
+window.importUserMarkers = importUserMarkers;
 
 const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
   const toDelete = userTrees.filter(t => t.userId === currentUserId);
-  if (firebaseEnabled && markersRef) {
-    toDelete.forEach(m => deleteDoc(doc(markersRef, m.id)).catch(console.error));
+  userTrees = userTrees.filter(t => t.userId !== currentUserId);
+  window.userTrees = userTrees;
+  if (window.firebaseEnabled && markersRef) {
+    toDelete.forEach(m => markersRef.doc(m.id).delete().catch(console.error));
   }
   drawUserMarkers();
 };
+window.deleteAllUserMarkers = deleteAllUserMarkers;
 
 // Remove all previous marker layers
 const clearUserMarkersFromMap = () => {
   if (userMarkerLayers) {
-    userMarkerLayers.forEach(layer => map.removeLayer(layer));
+    userMarkerLayers.forEach(layer => window.map.removeLayer(layer));
   }
   userMarkerLayers = [];
 };
+window.clearUserMarkersFromMap = clearUserMarkersFromMap;
 
 // Draw user markers
 const drawUserMarkers = () => {
@@ -251,7 +252,7 @@ const drawUserMarkers = () => {
         iconAnchor: [14, 22],
         popupAnchor: [0, -18]
       });
-      marker = L.marker([tree.lat, tree.lng], { icon: divIcon }).addTo(map);
+      marker = L.marker([tree.lat, tree.lng], { icon: divIcon }).addTo(window.map);
     } else {
       marker = L.circleMarker([tree.lat, tree.lng], {
         radius: 7,
@@ -260,7 +261,7 @@ const drawUserMarkers = () => {
         weight: 2,
         opacity: 1,
         fillOpacity: 0.85
-      }).addTo(map);
+      }).addTo(window.map);
     }
 
     marker.bindPopup(buildPopupHtml(tree));
@@ -269,14 +270,17 @@ const drawUserMarkers = () => {
     userMarkerLayers.push(marker);
   });
 };
+window.drawUserMarkers = drawUserMarkers;
 
 // Initial draw
 drawUserMarkers();
 
 // Add Mode Logic
 let addingMode = false;
+window.addingMode = addingMode;
 const addSightingBtn = document.getElementById('addSightingBtn');
 const crosshair = document.getElementById('crosshair');
+window.crosshair = crosshair;
 const placeHereBtn = document.getElementById('placeHereBtn');
 const exportMarkersBtn = document.getElementById('exportMarkersBtn');
 const importMarkersBtn = document.getElementById('importMarkersBtn');
@@ -289,11 +293,11 @@ if (deleteAllMarkersBtn) deleteAllMarkersBtn.onclick = deleteAllUserMarkers;
 addSightingBtn.onclick = () => {
   if (!addingMode) {
     addingMode = true;
-    addingMode = addingMode;
+    window.addingMode = addingMode;
     addSightingBtn.classList.add('adding');
     crosshair.style.display = 'block';
     placeHereBtn.style.display = 'block';
-    map._container.focus();
+    window.map._container.focus();
   } else {
     cancelAddMode();
   }
@@ -301,15 +305,16 @@ addSightingBtn.onclick = () => {
 
 const cancelAddMode = () => {
   addingMode = false;
-  addingMode = addingMode;
+  window.addingMode = addingMode;
   addSightingBtn.classList.remove('adding');
   crosshair.style.display = 'none';
   placeHereBtn.style.display = 'none';
 };
+window.cancelAddMode = cancelAddMode;
 
 placeHereBtn.onclick = () => {
   if (!addingMode) return;
-  const center = map.getCenter();
+  const center = window.map.getCenter();
   document.getElementById('latInput').value = center.lat;
   document.getElementById('lngInput').value = center.lng;
   addTreeForm.style.display = 'block';
@@ -354,24 +359,27 @@ const showMarkerError = msg => {
   errorMsg.textContent = msg;
   errorMsg.style.display = 'block';
 };
+window.showMarkerError = showMarkerError;
 const clearMarkerError = () => {
   errorMsg.textContent = '';
   errorMsg.style.display = 'none';
 };
+window.clearMarkerError = clearMarkerError;
 
 const uploadPhoto = async file => {
 
   console.log('Starting photo upload:', file.name, file.size + ' bytes');
   const maxRetries = 3;
   let attempt = 0;
+  const storageRef = window.storage.ref();
   const fileName =
     'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-  const photoRef = ref(storage, fileName);
+  const photoRef = storageRef.child(fileName);
 
   while (attempt < maxRetries) {
     try {
-      const snapshot = await uploadBytes(photoRef, file);
-      const url = await getDownloadURL(photoRef);
+      const snapshot = await photoRef.put(file);
+      const url = await snapshot.ref.getDownloadURL();
       console.log('Photo uploaded successfully:', url);
       return url;
     } catch (err) {
@@ -383,6 +391,7 @@ const uploadPhoto = async file => {
     }
   }
 };
+window.uploadPhoto = uploadPhoto;
 
 if (addTreeForm) {
   addTreeForm.addEventListener('submit', async ev => {
@@ -421,10 +430,10 @@ if (addTreeForm) {
         marker.notes = notes;
         marker.showRadius = showRadius;
         if (photoUrl) marker.photoUrl = photoUrl;
-        if (firebaseEnabled && markersRef) {
+        if (window.firebaseEnabled && markersRef) {
           const updateData = { type, lat, lng, name, notes, showRadius };
           if (photoUrl) updateData.photoUrl = photoUrl;
-          updateDoc(doc(markersRef, marker.id), updateData).catch(console.error);
+          markersRef.doc(marker.id).update(updateData).catch(console.error);
         }
       }
       editingMarkerId = null;
@@ -432,9 +441,9 @@ if (addTreeForm) {
       const timestamp = Date.now();
       const newTree = { lat, lng, type, name, notes, showRadius, timestamp, userId: currentUserId };
       if (photoUrl) newTree.photoUrl = photoUrl;
-      if (firebaseEnabled && markersRef) {
+      if (window.firebaseEnabled && markersRef) {
         try {
-          const docRef = await addDoc(markersRef, newTree);
+          const docRef = await markersRef.add(newTree);
           newTree.id = docRef.id;
         } catch (err) {
           console.error(err);
@@ -462,7 +471,7 @@ if (addTreeForm) {
 }
 
 // --- Edit Marker Logic ---
-map.on('popupopen', e => {
+window.map.on('popupopen', e => {
   const editBtn = e.popup._contentNode.querySelector('.edit-marker-btn');
   if (editBtn) {
     L.DomEvent.disableClickPropagation(editBtn);
@@ -486,7 +495,7 @@ map.on('popupopen', e => {
         }
         editingMarkerId = marker.id;
         addTreeForm.style.display = 'block';
-        map.closePopup();
+        window.map.closePopup();
       }
     });
   }
@@ -500,19 +509,25 @@ map.on('popupopen', e => {
       // Find marker to get photo URL
       const marker = userTrees.find(t => String(t.id) === String(markerId));
         if (marker && marker.userId === currentUserId) {
-        if (firebaseEnabled && markersRef) {
-          deleteDoc(doc(markersRef, markerId)).catch(console.error);
+          userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
+          window.userTrees = userTrees;
+        if (window.firebaseEnabled && markersRef) {
+          markersRef.doc(markerId).delete().catch(console.error);
         }
       }
       // Remove photo from Firebase Storage if exists
       if (marker && marker.userId === currentUserId && marker.photoUrl) {
         try {
-          await deleteObject(ref(storage, marker.photoUrl));
+          const baseUrl = window.storage.ref().toString();
+          const path = marker.photoUrl.split(`${baseUrl}/`)[1];
+          if (path) {
+            await window.storage.ref(path).delete();
+          }
         } catch (err) {
           // Ignore errors (file may already be gone)
         }
       }
-      map.closePopup();
+      window.map.closePopup();
       setTimeout(drawUserMarkers, 200);
     });
   }
@@ -528,4 +543,3 @@ map.on('popupopen', e => {
   padding: 0;
 }
 */
-}

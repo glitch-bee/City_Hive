@@ -1,10 +1,5 @@
 // Copy this file to firebaseConfig.local.js and fill in your Firebase credentials
-import { initializeApp } from 'firebase/app';
-import { getStorage } from 'firebase/storage';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-
-export const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "YOUR_API_KEY_HERE",
   authDomain: "city-hive-90f1e.firebaseapp.com",
   projectId: "city-hive-90f1e",
@@ -14,11 +9,14 @@ export const firebaseConfig = {
   measurementId: "G-LY3CH0HXDK"
 };
 
-export const app = initializeApp(firebaseConfig);
-export const storage = getStorage(app);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+const db = firebase.firestore();
+const auth = firebase.auth();
+window.storage = storage;
+window.db = db;
+window.auth = auth;
 
-onAuthStateChanged(auth, user => {
-  if (!user) signInAnonymously(auth).catch(console.error);
+auth.onAuthStateChanged(user => {
+  if (!user) auth.signInAnonymously().catch(console.error);
 });

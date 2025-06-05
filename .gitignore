@@ -2,4 +2,3 @@
 *.geojson
 .env
 .firebase/
-node_modules/

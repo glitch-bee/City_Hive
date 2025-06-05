@@ -23,6 +23,7 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 - **Delete All Markers** – remove all your saved markers with one click.
 - **Photo Uploads** – attach a photo (up to 5&nbsp;MB) to a marker. Images are stored in Firebase when available.
 - **Optional Firebase** – comment out the Firebase scripts and the app still runs; photo upload is simply skipped.
+- **Realtime Sync** – when Firebase is enabled, markers sync via Firestore and appear on all clients instantly.
 - **Filter by Type** – show or hide markers for Hive, Swarm, Tree or Structure.
 - **Help Modal** – quick instructions available from the "?" button.
 - **Distinct Icons** – unique icons identify hives, swarms, trees and structures.
@@ -56,6 +57,7 @@ City_Hive uses Firebase Storage for photo uploads. The public demo includes
 `docs/firebaseConfig.js` with a limited API key. If you deploy your own copy,
 replace that file with your own Firebase config and ensure your Storage rules
 restrict writes to authenticated users.
+Enable Firestore in your Firebase project to use the new realtime marker sync. Anonymous auth is sufficient.
 If you prefer not to use Firebase, simply comment out the Firebase scripts in `docs/index.html` and the app will skip photo uploads.
 
 ## Usage
@@ -71,7 +73,7 @@ If you prefer not to use Firebase, simply comment out the Firebase scripts in `d
 ## FAQ
 
 - **Where are my markers stored?**  They are saved in your browser's `localStorage` under `userTrees`. Clearing site data will remove them.
-- **My markers disappeared on another device.**  Export them to a file from the original device and import on the new one. There is no automatic sync yet.
+ - **My markers disappeared on another device.**  Markers now sync automatically when you're online. If you were offline, export them from the original device and import on the new one.
 - **Photo upload fails.**  Ensure the image is under 5&nbsp;MB and you have a network connection for Firebase storage.
 - **Can I run without Firebase?**  Yes. Comment out the Firebase scripts and the app will still work; photo uploads will simply be disabled.
 
@@ -79,4 +81,4 @@ If you prefer not to use Firebase, simply comment out the Firebase scripts in `d
 
 Questions or bug reports? Reach out via the NY Bee Club ( pres.qns@nybeeclub.org ) or open an issue on GitHub.
 
-_Last updated: 2025-09-05_
+_Last updated: 2025-06-05_

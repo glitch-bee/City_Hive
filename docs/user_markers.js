@@ -19,7 +19,7 @@ const subscribeToMarkers = () => {
   );
 };
 
-if (firebaseEnabled) {
+if (window.firebaseEnabled) {
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
       currentUserId = user.uid;
@@ -64,7 +64,7 @@ const createPulseCircle = (tree, color) => {
     weight: 1,
     opacity: 0.35,
     interactive: false
-  }).addTo(map);
+  }).addTo(window.map);
 };
 
 /**
@@ -163,7 +163,7 @@ const importUserMarkers = () => {
           if (existing && existing.userId === currentUserId) {
             Object.assign(existing, { type, lat, lng, notes, timestamp, name, showRadius });
             if (photoUrl) existing.photoUrl = photoUrl;
-            if (firebaseEnabled && markersRef) {
+            if (window.firebaseEnabled && markersRef) {
               const updateData = { type, lat, lng, notes, timestamp, name, showRadius };
               if (photoUrl) updateData.photoUrl = photoUrl;
               markersRef.doc(existing.id).update(updateData).catch(console.error);
@@ -171,7 +171,7 @@ const importUserMarkers = () => {
           } else if (!existing) {
             const newTree = { type, lat, lng, notes, timestamp, name, showRadius, userId: currentUserId };
             if (photoUrl) newTree.photoUrl = photoUrl;
-            if (firebaseEnabled && markersRef) {
+              if (window.firebaseEnabled && markersRef) {
               try {
                 const docRef = await markersRef.add(newTree);
                 newTree.id = docRef.id;
@@ -209,7 +209,7 @@ const deleteAllUserMarkers = () => {
   const toDelete = userTrees.filter(t => t.userId === currentUserId);
   userTrees = userTrees.filter(t => t.userId !== currentUserId);
   window.userTrees = userTrees;
-  if (firebaseEnabled && markersRef) {
+  if (window.firebaseEnabled && markersRef) {
     toDelete.forEach(m => markersRef.doc(m.id).delete().catch(console.error));
   }
   drawUserMarkers();
@@ -218,7 +218,7 @@ const deleteAllUserMarkers = () => {
 // Remove all previous marker layers
 const clearUserMarkersFromMap = () => {
   if (userMarkerLayers) {
-    userMarkerLayers.forEach(layer => map.removeLayer(layer));
+    userMarkerLayers.forEach(layer => window.map.removeLayer(layer));
   }
   userMarkerLayers = [];
 };
@@ -241,7 +241,7 @@ const drawUserMarkers = () => {
         iconAnchor: [14, 22],
         popupAnchor: [0, -18]
       });
-      marker = L.marker([tree.lat, tree.lng], { icon: divIcon }).addTo(map);
+      marker = L.marker([tree.lat, tree.lng], { icon: divIcon }).addTo(window.map);
     } else {
       marker = L.circleMarker([tree.lat, tree.lng], {
         radius: 7,
@@ -250,7 +250,7 @@ const drawUserMarkers = () => {
         weight: 2,
         opacity: 1,
         fillOpacity: 0.85
-      }).addTo(map);
+      }).addTo(window.map);
     }
 
     marker.bindPopup(buildPopupHtml(tree));
@@ -285,7 +285,7 @@ addSightingBtn.onclick = () => {
     addSightingBtn.classList.add('adding');
     crosshair.style.display = 'block';
     placeHereBtn.style.display = 'block';
-    map._container.focus();
+    window.map._container.focus();
   } else {
     cancelAddMode();
   }
@@ -302,7 +302,7 @@ window.cancelAddMode = cancelAddMode;
 
 placeHereBtn.onclick = () => {
   if (!addingMode) return;
-  const center = map.getCenter();
+  const center = window.map.getCenter();
   document.getElementById('latInput').value = center.lat;
   document.getElementById('lngInput').value = center.lng;
   addTreeForm.style.display = 'block';
@@ -415,7 +415,7 @@ if (addTreeForm) {
         marker.notes = notes;
         marker.showRadius = showRadius;
         if (photoUrl) marker.photoUrl = photoUrl;
-        if (firebaseEnabled && markersRef) {
+        if (window.firebaseEnabled && markersRef) {
           const updateData = { type, lat, lng, name, notes, showRadius };
           if (photoUrl) updateData.photoUrl = photoUrl;
           markersRef.doc(marker.id).update(updateData).catch(console.error);
@@ -426,7 +426,7 @@ if (addTreeForm) {
       const timestamp = Date.now();
       const newTree = { lat, lng, type, name, notes, showRadius, timestamp, userId: currentUserId };
       if (photoUrl) newTree.photoUrl = photoUrl;
-      if (firebaseEnabled && markersRef) {
+      if (window.firebaseEnabled && markersRef) {
         try {
           const docRef = await markersRef.add(newTree);
           newTree.id = docRef.id;
@@ -456,7 +456,7 @@ if (addTreeForm) {
 }
 
 // --- Edit Marker Logic ---
-map.on('popupopen', e => {
+window.map.on('popupopen', e => {
   const editBtn = e.popup._contentNode.querySelector('.edit-marker-btn');
   if (editBtn) {
     L.DomEvent.disableClickPropagation(editBtn);
@@ -480,7 +480,7 @@ map.on('popupopen', e => {
         }
         editingMarkerId = marker.id;
         addTreeForm.style.display = 'block';
-        map.closePopup();
+        window.map.closePopup();
       }
     });
   }
@@ -496,7 +496,7 @@ map.on('popupopen', e => {
         if (marker && marker.userId === currentUserId) {
           userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
           window.userTrees = userTrees;
-        if (firebaseEnabled && markersRef) {
+        if (window.firebaseEnabled && markersRef) {
           markersRef.doc(markerId).delete().catch(console.error);
         }
       }
@@ -512,7 +512,7 @@ map.on('popupopen', e => {
           // Ignore errors (file may already be gone)
         }
       }
-      map.closePopup();
+      window.map.closePopup();
       setTimeout(drawUserMarkers, 200);
     });
   }

@@ -647,10 +647,10 @@
     treeToggleBtn.onclick = function() {
       treesVisible = !treesVisible;
       if (treesVisible) {
-        map.addLayer(markers);
+        window.map.addLayer(window.markers);
         treeToggleBtn.style.background = 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)';
       } else {
-        map.removeLayer(markers);
+        window.map.removeLayer(window.markers);
         treeToggleBtn.style.background = 'linear-gradient(90deg,#bbb 60%,#ccc 100%)';
       }
     };

@@ -2,7 +2,6 @@
 // Provides creation and management of user-added markers on the map.
 // expects `map` and `firebaseEnabled` on the global window object
 
-let db = null;
 let markersRef = null;
 let currentUserId = null;
 window.currentUserId = currentUserId;
@@ -18,14 +17,14 @@ const subscribeToMarkers = () => {
     err => console.error('Firestore listen failed', err)
   );
 };
+window.subscribeToMarkers = subscribeToMarkers;
 
 if (window.firebaseEnabled) {
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
       currentUserId = user.uid;
       window.currentUserId = currentUserId;
-      db = firebase.firestore();
-      markersRef = db.collection('markers');
+      markersRef = firebase.firestore().collection('markers');
       subscribeToMarkers();
     } else {
       firebase
@@ -49,6 +48,7 @@ const getPulseColor = type => {
     default: return '#6e44ff';
   }
 };
+window.getPulseColor = getPulseColor;
 
 /**
  * Create the Leaflet circle used as a radius indicator.
@@ -66,6 +66,7 @@ const createPulseCircle = (tree, color) => {
     interactive: false
   }).addTo(window.map);
 };
+window.createPulseCircle = createPulseCircle;
 
 /**
  * Returns SVG markup for the marker icon based on type.
@@ -84,6 +85,7 @@ const getIconHtml = type => {
       return '';
   }
 };
+window.getIconHtml = getIconHtml;
 
 /** Build the popup HTML for a user marker. */
 const buildPopupHtml = tree => {
@@ -101,6 +103,7 @@ const buildPopupHtml = tree => {
   }
   return html;
 };
+window.buildPopupHtml = buildPopupHtml;
 
 // In-memory cache of marker documents
 let userTrees = [];
@@ -140,6 +143,7 @@ const exportUserMarkers = () => {
     URL.revokeObjectURL(url);
   }, 0);
 };
+window.exportUserMarkers = exportUserMarkers;
 
 const importUserMarkers = () => {
   const input = document.createElement('input');
@@ -203,6 +207,7 @@ const importUserMarkers = () => {
   input.click();
   document.body.removeChild(input);
 };
+window.importUserMarkers = importUserMarkers;
 
 const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
@@ -214,6 +219,7 @@ const deleteAllUserMarkers = () => {
   }
   drawUserMarkers();
 };
+window.deleteAllUserMarkers = deleteAllUserMarkers;
 
 // Remove all previous marker layers
 const clearUserMarkersFromMap = () => {
@@ -222,6 +228,7 @@ const clearUserMarkersFromMap = () => {
   }
   userMarkerLayers = [];
 };
+window.clearUserMarkersFromMap = clearUserMarkersFromMap;
 
 // Draw user markers
 const drawUserMarkers = () => {
@@ -259,6 +266,7 @@ const drawUserMarkers = () => {
     userMarkerLayers.push(marker);
   });
 };
+window.drawUserMarkers = drawUserMarkers;
 
 // Initial draw
 drawUserMarkers();
@@ -347,10 +355,12 @@ const showMarkerError = msg => {
   errorMsg.textContent = msg;
   errorMsg.style.display = 'block';
 };
+window.showMarkerError = showMarkerError;
 const clearMarkerError = () => {
   errorMsg.textContent = '';
   errorMsg.style.display = 'none';
 };
+window.clearMarkerError = clearMarkerError;
 
 const uploadPhoto = async file => {
 
@@ -376,7 +386,8 @@ const uploadPhoto = async file => {
       }
     }
   }
-}
+};
+window.uploadPhoto = uploadPhoto;
 
 if (addTreeForm) {
   addTreeForm.addEventListener('submit', async ev => {

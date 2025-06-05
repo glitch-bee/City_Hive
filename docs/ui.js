@@ -23,6 +23,7 @@ document.addEventListener('keydown', e => {
 const helpBtn = document.getElementById('helpBtn');
 const helpModal = document.getElementById('helpModal');
 const closeHelp = () => { if (helpModal) helpModal.style.display = 'none'; };
+window.closeHelp = closeHelp;
 if (helpBtn && helpModal) {
   helpBtn.addEventListener('click', () => {
     helpModal.style.display = 'flex';

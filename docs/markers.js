@@ -2,7 +2,6 @@
  * Provides the marker cluster layer for the public tree dataset.
  * Imports the Leaflet map from main.js.
  */
-import { map } from './main.js';
 
 /**
  * Returns a color for the given tree species.
@@ -27,10 +26,11 @@ const getColor = species => {
 };
 
 // Marker cluster group (with cluster-click disabled)
-export const markers = L.markerClusterGroup({
+const markers = L.markerClusterGroup({
   zoomToBoundsOnClick: false,
   spiderfyOnMaxZoom: true
 });
+window.markers = markers;
 
 // Load GeoJSON (filtered citywide trees) with cache-busting query param
 fetch(`full_boro_filtered.geojson?v=${Date.now()}`)

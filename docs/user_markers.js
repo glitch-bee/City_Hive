@@ -1,17 +1,18 @@
 // --- User Marker Logic ---
 // Provides creation and management of user-added markers on the map.
-import { map } from './main.js';
-import { firebaseEnabled } from './utils.js';
+// expects `map` and `firebaseEnabled` on the global window object
 
 let db = null;
 let markersRef = null;
-export let currentUserId = null;
+let currentUserId = null;
+window.currentUserId = currentUserId;
 
 const subscribeToMarkers = () => {
   if (!markersRef) return;
   markersRef.onSnapshot(
     snap => {
       userTrees = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      window.userTrees = userTrees;
       drawUserMarkers();
     },
     err => console.error('Firestore listen failed', err)
@@ -22,6 +23,7 @@ if (firebaseEnabled) {
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
       currentUserId = user.uid;
+      window.currentUserId = currentUserId;
       db = firebase.firestore();
       markersRef = db.collection('markers');
       subscribeToMarkers();
@@ -101,9 +103,11 @@ const buildPopupHtml = tree => {
 };
 
 // In-memory cache of marker documents
-export let userTrees = [];
+let userTrees = [];
+window.userTrees = userTrees;
 
-export let activeTypes = { hive: true, swarm: true, tree: true, structure: true };
+let activeTypes = { hive: true, swarm: true, tree: true, structure: true };
+window.activeTypes = activeTypes;
 
 let userMarkerLayers = [];
 const filterCheckboxes = document.querySelectorAll('#typeFilters input[type="checkbox"]');
@@ -204,6 +208,7 @@ const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
   const toDelete = userTrees.filter(t => t.userId === currentUserId);
   userTrees = userTrees.filter(t => t.userId !== currentUserId);
+  window.userTrees = userTrees;
   if (firebaseEnabled && markersRef) {
     toDelete.forEach(m => markersRef.doc(m.id).delete().catch(console.error));
   }
@@ -259,9 +264,11 @@ const drawUserMarkers = () => {
 drawUserMarkers();
 
 // Add Mode Logic
-export let addingMode = false;
+let addingMode = false;
+window.addingMode = addingMode;
 const addSightingBtn = document.getElementById('addSightingBtn');
-export const crosshair = document.getElementById('crosshair');
+const crosshair = document.getElementById('crosshair');
+window.crosshair = crosshair;
 const placeHereBtn = document.getElementById('placeHereBtn');
 const exportMarkersBtn = document.getElementById('exportMarkersBtn');
 const importMarkersBtn = document.getElementById('importMarkersBtn');
@@ -274,6 +281,7 @@ if (deleteAllMarkersBtn) deleteAllMarkersBtn.onclick = deleteAllUserMarkers;
 addSightingBtn.onclick = () => {
   if (!addingMode) {
     addingMode = true;
+    window.addingMode = addingMode;
     addSightingBtn.classList.add('adding');
     crosshair.style.display = 'block';
     placeHereBtn.style.display = 'block';
@@ -283,12 +291,14 @@ addSightingBtn.onclick = () => {
   }
 };
 
-export const cancelAddMode = () => {
+const cancelAddMode = () => {
   addingMode = false;
+  window.addingMode = addingMode;
   addSightingBtn.classList.remove('adding');
   crosshair.style.display = 'none';
   placeHereBtn.style.display = 'none';
 };
+window.cancelAddMode = cancelAddMode;
 
 placeHereBtn.onclick = () => {
   if (!addingMode) return;
@@ -483,8 +493,9 @@ map.on('popupopen', e => {
       const markerId = deleteBtn.getAttribute('data-id');
       // Find marker to get photo URL
       const marker = userTrees.find(t => String(t.id) === String(markerId));
-      if (marker && marker.userId === currentUserId) {
-        userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
+        if (marker && marker.userId === currentUserId) {
+          userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
+          window.userTrees = userTrees;
         if (firebaseEnabled && markersRef) {
           markersRef.doc(markerId).delete().catch(console.error);
         }

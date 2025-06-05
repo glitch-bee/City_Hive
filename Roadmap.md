@@ -17,6 +17,7 @@
 - [x] Public Firebase config committed for GitHub Pages
 - [x] Open beta release on GitHub Pages
 - [x] Basic Firestore sync for user markers
+- [x] Error handling for Firestore connectivity
 
 ## In Progress
 

@@ -3,6 +3,9 @@
 import { map } from './main.js';
 
 // Firestore database reference (set in initFirestoreSync when Firebase is ready)
+// Will hold the Firestore instance once initialised. If Firebase fails to
+// load or the network is unavailable this stays null and the app will fall
+// back to localStorage only.
 let db = null;
 
 /**
@@ -81,6 +84,7 @@ const saveMarkerToCloud = async marker => {
     await db.collection('markers').doc(String(marker.id)).set(marker);
   } catch (err) {
     console.error('Failed to save marker to Firestore', err);
+    alert('Marker saved locally but could not sync to the cloud.');
   }
 };
 
@@ -90,6 +94,7 @@ const deleteMarkerFromCloud = async id => {
     await db.collection('markers').doc(String(id)).delete();
   } catch (err) {
     console.error('Failed to delete marker from Firestore', err);
+    alert('Marker deleted locally but could not be removed from the cloud.');
   }
 };
 
@@ -97,9 +102,12 @@ const fetchCloudMarkers = async () => {
   if (!db) return [];
   try {
     const snap = await db.collection('markers').get();
-    return snap.docs.map(d => d.data());
+    const data = snap.docs.map(d => d.data());
+    console.log('Fetched markers from Firestore', data);
+    return data;
   } catch (err) {
     console.error('Failed to load markers from Firestore', err);
+    alert('Unable to load markers from the cloud. Falling back to local data.');
     return [];
   }
 };
@@ -127,8 +135,14 @@ const initFirestoreSync = async () => {
   if (typeof firebase === 'undefined' || !firebase.firestore) return;
   try {
     db = firebase.firestore();
+    // Simple write test to verify connectivity
+    await db.collection('markers').doc('__test__').set({ test: 'ping', ts: Date.now() });
+    await db.collection('markers').doc('__test__').delete();
+    console.log('Firestore connection verified');
   } catch (err) {
     console.error('Firestore init error', err);
+    db = null;
+    alert('Firestore unavailable. Continuing with local storage only.');
     return;
   }
   const cloud = await fetchCloudMarkers();

@@ -1,4 +1,4 @@
-export function setupUI(map) {
+export function setupUI(map, markers) {
   const helpBtn = document.getElementById('helpBtn');
   const helpModal = document.getElementById('helpModal');
   const closeHelp = () => { if (helpModal) helpModal.style.display = 'none'; };
@@ -30,4 +30,60 @@ export function setupUI(map) {
   });
 
   map.on('locationerror', () => { alert('Unable to access your location.'); });
+
+  const legend = document.getElementById('legend');
+  const legendToggleBtn = document.getElementById('legendToggleBtn');
+  let legendVisible = true;
+  if (legend && legendToggleBtn) {
+    legendToggleBtn.addEventListener('click', () => {
+      legendVisible = !legendVisible;
+      legend.style.display = legendVisible ? 'block' : 'none';
+      legendToggleBtn.style.background = legendVisible
+        ? 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)'
+        : 'linear-gradient(90deg,#6e44ff 60%,#00b894 100%)';
+    });
+    document.addEventListener('click', e => {
+      if (legendVisible && !legend.contains(e.target) && !legendToggleBtn.contains(e.target)) {
+        legend.style.display = 'none';
+        legendVisible = false;
+        legendToggleBtn.style.background = 'linear-gradient(90deg,#6e44ff 60%,#00b894 100%)';
+      }
+    });
+    if (window.innerWidth <= 700) {
+      legendVisible = false;
+      legend.style.display = 'none';
+    }
+  }
+
+  const treeToggleBtn = document.getElementById('treeToggleBtn');
+  let treesVisible = true;
+  if (treeToggleBtn && markers) {
+    treeToggleBtn.onclick = () => {
+      treesVisible = !treesVisible;
+      if (treesVisible) {
+        map.addLayer(markers);
+        treeToggleBtn.style.background = 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)';
+      } else {
+        map.removeLayer(markers);
+        treeToggleBtn.style.background = 'linear-gradient(90deg,#bbb 60%,#ccc 100%)';
+      }
+    };
+  }
+
+  const menuBtn = document.getElementById('menuBtn');
+  if (menuBtn) {
+    menuBtn.addEventListener('click', () => {
+      document.body.classList.toggle('menu-open');
+    });
+  }
+
+  const filterToggleBtn = document.getElementById('filterToggleBtn');
+  const typeFilters = document.getElementById('typeFilters');
+  let filtersVisible = false;
+  if (filterToggleBtn && typeFilters) {
+    filterToggleBtn.addEventListener('click', () => {
+      filtersVisible = !filtersVisible;
+      typeFilters.style.display = filtersVisible ? 'block' : 'none';
+    });
+  }
 }

@@ -28,7 +28,7 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 - **Help Modal** – quick instructions available from the "?" button.
 - **Distinct Icons** – unique icons identify hives, swarms, trees and structures.
 - **Mobile-Friendly Controls** – gradient-styled buttons with a collapsible menu on small screens, plus a pop‑out legend and a "Locate me" tool for field use.
-- **Local Persistence** – all data is saved in `localStorage` so your notes remain even without a network connection.
+- **Cloud Persistence** – markers are stored in Firestore and sync across devices.
 - **Accessible UI** – keyboard-friendly controls with ARIA labels and clear hover states.
 
 ## Installation
@@ -72,8 +72,8 @@ If you prefer not to use Firebase, simply comment out the Firebase scripts in `d
 
 ## FAQ
 
-- **Where are my markers stored?**  They are saved in your browser's `localStorage` under `userTrees`. Clearing site data will remove them.
- - **My markers disappeared on another device.**  Markers now sync automatically when you're online. If you were offline, export them from the original device and import on the new one.
+- **Where are my markers stored?**  They live in Firestore under your user ID, so you can access them on any device.
+- **My markers disappeared on another device.**  Markers are stored in Firestore and appear anywhere you sign in. Offline devices can still export and import manually.
 - **Photo upload fails.**  Ensure the image is under 5&nbsp;MB and you have a network connection for Firebase storage.
 - **Can I run without Firebase?**  Yes. Comment out the Firebase scripts and the app will still work; photo uploads will simply be disabled.
 

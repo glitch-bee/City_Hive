@@ -1,6 +1,10 @@
 # City_Hive Roadmap
 **Status:** Open Beta
 
+## Hosted Site
+
+<https://city-hive-90f1e.web.app/>
+
 ## Completed Milestones
 
 - [x] Basic mapping of NYC tree census data
@@ -14,8 +18,8 @@
 - [x] Accessibility polish and keyboard navigation
 - [x] Local Firebase config file for API keys
 - [x] Firebase made optional for offline use
-- [x] Public Firebase config committed for GitHub Pages
-- [x] Open beta release on GitHub Pages
+- [x] Public Firebase config committed for static hosting
+- [x] Open beta release (initially on GitHub Pages, now hosted on Firebase)
 
 ## In Progress
 

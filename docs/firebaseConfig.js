@@ -1,4 +1,4 @@
-// Public Firebase configuration used by the GitHub Pages build.
+// Public Firebase configuration used by the Firebase Hosting build.
 // The API key below is safe to expose but be sure your
 // Firebase Storage rules restrict writes to authenticated users.
 const firebaseConfig = {

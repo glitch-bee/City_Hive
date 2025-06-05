@@ -2,7 +2,14 @@
 # City_Hive
 ## Project Status
 
-City_Hive is now in open beta. The map and sighting markers work across desktop and mobile, including photo uploads and import/export. Try the demo on [GitHub Pages](https://glitch-bee.github.io/City_Hive/). Bug reports and feedback are welcome.
+City_Hive is now in open beta. The map and sighting markers work across desktop and mobile, including photo uploads and import/export. Try the hosted demo on [Firebase](https://city-hive-90f1e.web.app/). Bug reports and feedback are welcome.
+
+## Live Demo
+
+<https://city-hive-90f1e.web.app/>
+
+City_Hive previously used GitHub Pages for static hosting. We migrated to Firebase Hosting for smoother backend integration and the ability to add real-time features in future updates. The old GitHub Pages site remains available as a legacy mirror.
+Legacy site: <https://glitch-bee.github.io/City_Hive/>
 
 
 City_Hive is a lightweight mapping tool for beekeepers, researchers and land stewards in New York City. It lets you log hive locations, swarms, cavity trees and other bee-related sites directly in the browser. No server is required &mdash; markers are stored locally so you can use the map offline on your phone or laptop.
@@ -29,8 +36,19 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
    ```bash
    pip install pandas geopandas requests geojson shapely matplotlib
    ```
-2. To simply use the map, open `docs/index.html` in a browser or visit the demo at https://glitch-bee.github.io/City_Hive/. A small web server such as `python -m http.server` is recommended for mobile devices.
+2. To simply use the map, open `docs/index.html` in a browser or visit the hosted site at <https://city-hive-90f1e.web.app/>. A small web server such as `python -m http.server` is recommended for mobile devices.
 3. Optional: run the scripts in `scripts/` to generate your own GeoJSON files from NYC Open Data.
+
+## Deployment
+
+Prerequisites: [Node.js](https://nodejs.org/), npm and the [Firebase CLI](https://firebase.google.com/docs/cli).
+
+1. `firebase login`
+2. `firebase init hosting` &mdash; select **docs** as the public directory and **do not** overwrite `index.html`.
+3. `firebase serve` to test locally.
+4. `firebase deploy` to publish your site.
+
+The live site is available at <https://city-hive-90f1e.web.app/> once deployed.
 
 ## API Key Setup
 

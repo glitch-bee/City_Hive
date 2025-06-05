@@ -1,5 +1,9 @@
 # City_Hive Project Notes (Beta Status, Fall 2025)
 
+## Hosted Site
+
+<https://city-hive-90f1e.web.app/>
+
 ## Overview
 
 City_Hive is a browser-based dashboard to map feral honey bee sightings and likely cavity trees in NYC, visualized against city tree census data. Built for the NY Bee Club, researchers, and land stewards.
@@ -18,7 +22,7 @@ City_Hive is a browser-based dashboard to map feral honey bee sightings and like
 - **Legend explaining species color codes and user markers**
 - **Performance: MarkerCluster used, no cluster-zoom on click (unclusters only on zoom-in)**
 - **Modern, muted basemap (CartoDB Positron) for visual clarity**
-- **Works from static hosting (e.g. GitHub Pages, no server required)**
+- **Works from static hosting (e.g., Firebase Hosting or GitHub Pages, no server required)**
 
 ---
 

@@ -1,6 +1,10 @@
 # City_Hive Beekeeper-Focused Roadmap (Open Beta 2025)
 **Status:** Open Beta
 
+## Hosted Site
+
+<https://city-hive-90f1e.web.app/>
+
 ## Immediate Priorities (Core Usability)
 
 - [X] **Editable Markers**
@@ -71,6 +75,6 @@
 - [X] Legend and controls are mobile-friendly
 - [X] Data can be filtered for easy viewing
 - [X] Basic help/instructions available
-- [X] Open beta release on GitHub Pages
+- [X] Open beta release (originally on GitHub Pages, now hosted on Firebase)
 
 _Last updated: Fall 2025_

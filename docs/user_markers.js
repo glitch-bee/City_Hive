@@ -1,6 +1,24 @@
 // --- User Marker Logic ---
 // Provides creation and management of user-added markers on the map.
 // Expects a Leaflet map instance and Firebase modules passed in
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+import {
+  onAuthStateChanged,
+  signInAnonymously
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 export function initUserMarkers(map, { db, storage, auth }) {
 let firebaseEnabled = true;
@@ -10,7 +28,8 @@ let currentUserId = null;
 
 const subscribeToMarkers = () => {
   if (!markersRef) return;
-  markersRef.onSnapshot(
+  onSnapshot(
+    markersRef,
     snap => {
       userTrees = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       drawUserMarkers();
@@ -20,15 +39,13 @@ const subscribeToMarkers = () => {
 };
 
 if (firebaseEnabled && auth && db) {
-  auth.onAuthStateChanged(user => {
+  onAuthStateChanged(auth, user => {
     if (user) {
       currentUserId = user.uid;
-      markersRef = db.collection('markers');
+      markersRef = collection(db, 'markers');
       subscribeToMarkers();
     } else {
-      auth
-        .signInAnonymously()
-        .catch(console.error);
+      signInAnonymously(auth).catch(console.error);
     }
   });
 }
@@ -161,14 +178,14 @@ const importUserMarkers = () => {
             if (firebaseEnabled && markersRef) {
               const updateData = { type, lat, lng, notes, timestamp, name, showRadius };
               if (photoUrl) updateData.photoUrl = photoUrl;
-              markersRef.doc(existing.id).update(updateData).catch(console.error);
+              updateDoc(doc(markersRef, existing.id), updateData).catch(console.error);
             }
           } else if (!existing) {
             const newTree = { type, lat, lng, notes, timestamp, name, showRadius, userId: currentUserId };
             if (photoUrl) newTree.photoUrl = photoUrl;
               if (firebaseEnabled && markersRef) {
               try {
-                const docRef = await markersRef.add(newTree);
+                const docRef = await addDoc(markersRef, newTree);
                 newTree.id = docRef.id;
               } catch (err) {
                 console.error(err);
@@ -203,7 +220,7 @@ const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
   const toDelete = userTrees.filter(t => t.userId === currentUserId);
   if (firebaseEnabled && markersRef) {
-    toDelete.forEach(m => markersRef.doc(m.id).delete().catch(console.error));
+    toDelete.forEach(m => deleteDoc(doc(markersRef, m.id)).catch(console.error));
   }
   drawUserMarkers();
 };
@@ -347,15 +364,14 @@ const uploadPhoto = async file => {
   console.log('Starting photo upload:', file.name, file.size + ' bytes');
   const maxRetries = 3;
   let attempt = 0;
-  const storageRef = storage.ref();
   const fileName =
     'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
-  const photoRef = storageRef.child(fileName);
+  const photoRef = ref(storage, fileName);
 
   while (attempt < maxRetries) {
     try {
-      const snapshot = await photoRef.put(file);
-      const url = await snapshot.ref.getDownloadURL();
+      const snapshot = await uploadBytes(photoRef, file);
+      const url = await getDownloadURL(photoRef);
       console.log('Photo uploaded successfully:', url);
       return url;
     } catch (err) {
@@ -408,7 +424,7 @@ if (addTreeForm) {
         if (firebaseEnabled && markersRef) {
           const updateData = { type, lat, lng, name, notes, showRadius };
           if (photoUrl) updateData.photoUrl = photoUrl;
-          markersRef.doc(marker.id).update(updateData).catch(console.error);
+          updateDoc(doc(markersRef, marker.id), updateData).catch(console.error);
         }
       }
       editingMarkerId = null;
@@ -418,7 +434,7 @@ if (addTreeForm) {
       if (photoUrl) newTree.photoUrl = photoUrl;
       if (firebaseEnabled && markersRef) {
         try {
-          const docRef = await markersRef.add(newTree);
+          const docRef = await addDoc(markersRef, newTree);
           newTree.id = docRef.id;
         } catch (err) {
           console.error(err);
@@ -485,17 +501,13 @@ map.on('popupopen', e => {
       const marker = userTrees.find(t => String(t.id) === String(markerId));
         if (marker && marker.userId === currentUserId) {
         if (firebaseEnabled && markersRef) {
-          markersRef.doc(markerId).delete().catch(console.error);
+          deleteDoc(doc(markersRef, markerId)).catch(console.error);
         }
       }
       // Remove photo from Firebase Storage if exists
       if (marker && marker.userId === currentUserId && marker.photoUrl) {
         try {
-          const baseUrl = storage.ref().toString();
-          const path = marker.photoUrl.split(`${baseUrl}/`)[1];
-          if (path) {
-            await storage.ref(path).delete();
-          }
+          await deleteObject(ref(storage, marker.photoUrl));
         } catch (err) {
           // Ignore errors (file may already be gone)
         }

@@ -1,6 +1,6 @@
 # Contributing to City_Hive
 
-Thanks for your interest in improving City_Hive! This project is maintained by members of the NY Bee Club and welcomes community contributions.
+Thanks for your interest in improving City_Hive! This project is maintained by members of the NY Bee Club (pres.qns@nybeeclub.org) and welcomes community contributions.
 
 ## Reporting Issues
 
@@ -31,4 +31,4 @@ Run any modified Python scripts to ensure they still execute without errors.
 
 ## Questions
 
-Feel free to open an issue or contact the maintainers via the NY Bee Club.
+Feel free to open an issue or contact the maintainers via the NY Bee Club (pres.qns@nybeeclub.org).

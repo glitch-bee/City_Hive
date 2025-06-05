@@ -632,9 +632,9 @@
   <script src="user_markers.js"></script>
   <script src="ui.js"></script>
   <script src="utils.js"></script>
- 
+  <script>
     // Optionally, hide legend when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       if (legendVisible && !legend.contains(e.target) && !legendToggleBtn.contains(e.target)) {
         legend.style.display = 'none';
         legendVisible = false;
@@ -644,7 +644,7 @@
     // Tree toggle logic
     const treeToggleBtn = document.getElementById('treeToggleBtn');
     let treesVisible = true;
-    treeToggleBtn.onclick = function() {
+    treeToggleBtn.onclick = function () {
       treesVisible = !treesVisible;
       if (treesVisible) {
         window.map.addLayer(window.markers);

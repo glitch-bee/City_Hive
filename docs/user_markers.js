@@ -1,10 +1,14 @@
 // --- User Marker Logic ---
 // Provides creation and management of user-added markers on the map.
-// expects `map` and `firebaseEnabled` on the global window object
+// expects `map` and firebase variables on the global window object
+
+const firebaseAvailable = typeof firebase !== 'undefined';
+window.firebaseEnabled = firebaseAvailable;
 
 let markersRef = null;
 let currentUserId = null;
 window.currentUserId = currentUserId;
+window.markersRef = markersRef;
 
 const subscribeToMarkers = () => {
   if (!markersRef) return;
@@ -19,16 +23,16 @@ const subscribeToMarkers = () => {
 };
 window.subscribeToMarkers = subscribeToMarkers;
 
-if (window.firebaseEnabled) {
-  firebase.auth().onAuthStateChanged(user => {
+if (window.firebaseEnabled && window.auth && window.db) {
+  window.auth.onAuthStateChanged(user => {
     if (user) {
       currentUserId = user.uid;
       window.currentUserId = currentUserId;
-      markersRef = firebase.firestore().collection('markers');
+      markersRef = window.db.collection('markers');
+      window.markersRef = markersRef;
       subscribeToMarkers();
     } else {
-      firebase
-        .auth()
+      window.auth
         .signInAnonymously()
         .catch(console.error);
     }
@@ -367,7 +371,7 @@ const uploadPhoto = async file => {
   console.log('Starting photo upload:', file.name, file.size + ' bytes');
   const maxRetries = 3;
   let attempt = 0;
-  const storageRef = firebase.storage().ref();
+  const storageRef = window.storage.ref();
   const fileName =
     'marker_photos/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
   const photoRef = storageRef.child(fileName);
@@ -514,10 +518,10 @@ window.map.on('popupopen', e => {
       // Remove photo from Firebase Storage if exists
       if (marker && marker.userId === currentUserId && marker.photoUrl) {
         try {
-          const baseUrl = firebase.storage().ref().toString();
+          const baseUrl = window.storage.ref().toString();
           const path = marker.photoUrl.split(`${baseUrl}/`)[1];
           if (path) {
-            await firebase.storage().ref(path).delete();
+            await window.storage.ref(path).delete();
           }
         } catch (err) {
           // Ignore errors (file may already be gone)

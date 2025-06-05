@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Firestore Test</title>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBxuqejpdAdgltobX7tFD_Du6UE9_dTp_c",
+        authDomain: "city-hive-90f1e.firebaseapp.com",
+        projectId: "city-hive-90f1e",
+        storageBucket: "city-hive-90f1e.appspot.com",
+        messagingSenderId: "111416325340",
+        appId: "1:111416325340:web:0804bbbed2647f57ce7019",
+        measurementId: "G-LY3CH0HXDK"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      db.collection("markers").add({ test: "hello", timestamp: Date.now() })
+        .then(() => alert("SUCCESS: Wrote to Firestore!"))
+        .catch(err => alert("ERROR: " + err.message));
+    </script>
+  </head>
+  <body>
+    <h1>Firestore Test</h1>
+  </body>
+</html>

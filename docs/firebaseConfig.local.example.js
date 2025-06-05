@@ -13,6 +13,9 @@ firebase.initializeApp(firebaseConfig);
 const storage = firebase.storage();
 const db = firebase.firestore();
 const auth = firebase.auth();
+window.storage = storage;
+window.db = db;
+window.auth = auth;
 
 auth.onAuthStateChanged(user => {
   if (!user) auth.signInAnonymously().catch(console.error);

@@ -1,6 +1,8 @@
-// Public Firebase configuration used by the Firebase Hosting build.
-// The API key below is safe to expose but be sure your
-// Firebase Storage rules restrict writes to authenticated users.
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getStorage } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
 const firebaseConfig = {
   apiKey: "AIzaSyBxuqejpdAdgltobX7tFD_Du6UE9_dTp_c",
   authDomain: "city-hive-90f1e.firebaseapp.com",
@@ -11,14 +13,11 @@ const firebaseConfig = {
   measurementId: "G-LY3CH0HXDK"
 };
 
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
-const db = firebase.firestore();
-const auth = firebase.auth();
-window.storage = storage;
-window.db = db;
-window.auth = auth;
+export const app = initializeApp(firebaseConfig);
+export const storage = getStorage(app);
+export const db = getFirestore(app);
+export const auth = getAuth(app);
 
-auth.onAuthStateChanged(user => {
-  if (!user) auth.signInAnonymously().catch(console.error);
+onAuthStateChanged(auth, user => {
+  if (!user) signInAnonymously(auth).catch(console.error);
 });

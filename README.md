@@ -22,7 +22,7 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 - **Import/Export** – download your markers as JSON and load them again on another device.
 - **Delete All Markers** – remove all your saved markers with one click.
 - **Photo Uploads** – attach a photo (up to 5&nbsp;MB) to a marker. Images are stored in Firebase when available.
-- **Optional Firebase** – comment out the Firebase scripts and the app still runs; photo upload is simply skipped.
+- **Optional Firebase** – remove the `firebaseConfig.js` module from `index.html` and the app will skip cloud features.
 - **Realtime Sync** – when Firebase is enabled, markers sync via Firestore and appear on all clients instantly.
 - **Filter by Type** – show or hide markers for Hive, Swarm, Tree or Structure.
 - **Help Modal** – quick instructions available from the "?" button.
@@ -58,7 +58,7 @@ City_Hive uses Firebase Storage for photo uploads. The public demo includes
 replace that file with your own Firebase config and ensure your Storage rules
 restrict writes to authenticated users.
 Enable Firestore in your Firebase project to use the new realtime marker sync. Anonymous auth is sufficient.
-If you prefer not to use Firebase, simply comment out the Firebase scripts in `docs/index.html` and the app will skip photo uploads.
+If you prefer not to use Firebase, remove the `firebaseConfig.js` import from `docs/index.html` and the app will skip photo uploads.
 
 ## Usage
 

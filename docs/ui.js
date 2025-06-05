@@ -4,19 +4,19 @@
 // expects `map`, `markers`, `addingMode`, `cancelAddMode`, and `crosshair` on the window object
 
 // Disable cluster click-to-zoom (uncluster only on zoom level)
-markers.on('clusterclick', a => {
+window.markers.on('clusterclick', a => {
   a.originalEvent.preventDefault();
 });
 
-map.on('movestart', () => {
-  if (addingMode) {
-    crosshair.style.display = 'block';
+window.map.on('movestart', () => {
+  if (window.addingMode) {
+    window.crosshair.style.display = 'block';
   }
 });
 
 document.addEventListener('keydown', e => {
-  if (addingMode && e.key === 'Escape') {
-    cancelAddMode();
+  if (window.addingMode && e.key === 'Escape') {
+    window.cancelAddMode();
   }
 });
 
@@ -50,18 +50,18 @@ locateBtn.onAdd = map => {
   };
   return btn;
 };
-locateBtn.addTo(map);
+locateBtn.addTo(window.map);
 
 // Show the marker when location is found
 let myloc;
-map.on('locationfound', e => {
-  if (myloc) map.removeLayer(myloc);
+window.map.on('locationfound', e => {
+  if (myloc) window.map.removeLayer(myloc);
   myloc = L.circleMarker(e.latlng, {
     radius: 10, fillColor: '#3399ff', color: '#3399ff',
     fillOpacity: 0.4, weight: 2
-  }).addTo(map).bindPopup('You are here').openPopup();
+  }).addTo(window.map).bindPopup('You are here').openPopup();
 });
 
-map.on('locationerror', () => {
+window.map.on('locationerror', () => {
   alert('Unable to access your location.');
 });

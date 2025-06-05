@@ -52,5 +52,5 @@ fetch(`full_boro_filtered.geojson?v=${Date.now()}`)
         );
       }
     }).eachLayer(layer => markers.addLayer(layer));
-    map.addLayer(markers);
+    window.map.addLayer(markers);
   });

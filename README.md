@@ -16,7 +16,7 @@ City_Hive is a lightweight mapping tool for beekeepers, researchers and land ste
 - **Delete All Markers** – remove all your saved markers with one click.
 - **Photo Uploads** – attach a photo (up to 5&nbsp;MB) to a marker. Images are stored in Firebase when available.
 - **Optional Firebase** – comment out the Firebase scripts and the app still runs; photo upload is simply skipped.
-- **Cloud Sync** – when Firebase is enabled, markers are saved to Firestore so they appear on all your devices.
+- **Cloud Sync** – when Firebase is enabled, markers are saved to Firestore so they appear on all your devices. Connection issues now trigger alerts so you know if syncing fails.
 - **Filter by Type** – show or hide markers for Hive, Swarm, Tree or Structure.
 - **Help Modal** – quick instructions available from the "?" button.
 - **Distinct Icons** – unique icons identify hives, swarms, trees and structures.

@@ -622,52 +622,6 @@
   </form>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
   <script type="module" src="main.js"></script>
-  <script>
-    // Optionally, hide legend when clicking outside
-    document.addEventListener('click', function (e) {
-      if (legendVisible && !legend.contains(e.target) && !legendToggleBtn.contains(e.target)) {
-        legend.style.display = 'none';
-        legendVisible = false;
-        legendToggleBtn.style.background = 'linear-gradient(90deg,#6e44ff 60%,#00b894 100%)';
-      }
-    });
-    // Tree toggle logic
-    const treeToggleBtn = document.getElementById('treeToggleBtn');
-    let treesVisible = true;
-    treeToggleBtn.onclick = function () {
-      treesVisible = !treesVisible;
-      if (treesVisible) {
-        window.map.addLayer(window.markers);
-        treeToggleBtn.style.background = 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)';
-      } else {
-        window.map.removeLayer(window.markers);
-        treeToggleBtn.style.background = 'linear-gradient(90deg,#bbb 60%,#ccc 100%)';
-      }
-    };
-    const menuBtn = document.getElementById('menuBtn');
-    if (menuBtn) {
-      menuBtn.addEventListener('click', () => {
-        document.body.classList.toggle('menu-open');
-      });
-    }
-    const filterToggleBtn = document.getElementById('filterToggleBtn');
-    const typeFilters = document.getElementById('typeFilters');
-    let filtersVisible = false;
-    if (filterToggleBtn && typeFilters) {
-      filterToggleBtn.addEventListener('click', () => {
-        filtersVisible = !filtersVisible;
-        typeFilters.style.display = filtersVisible ? 'block' : 'none';
-      });
-    }
-    if (window.innerWidth <= 700) {
-      legendVisible = false;
-      legend.style.display = 'none';
-    }
-  </script>
 </body>
 </html>

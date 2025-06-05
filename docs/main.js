@@ -5,6 +5,6 @@ import { setupUI } from './ui.js';
 import { app, db, storage, auth } from './firebaseConfig.js';
 
 const map = createMap();
-setupPublicMarkers(map);
+const { markers } = setupPublicMarkers(map);
 initUserMarkers(map, { db, storage, auth });
-setupUI(map);
+setupUI(map, markers);

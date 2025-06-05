@@ -8,17 +8,17 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+} from 'firebase/firestore';
 import {
   ref,
   uploadBytes,
   getDownloadURL,
   deleteObject
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js';
+} from 'firebase/storage';
 import {
   onAuthStateChanged,
   signInAnonymously
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+} from 'firebase/auth';
 
 export function initUserMarkers(map, { db, storage, auth }) {
 let firebaseEnabled = true;

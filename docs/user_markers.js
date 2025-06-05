@@ -2,6 +2,9 @@
 // Provides creation and management of user-added markers on the map.
 import { map } from './main.js';
 
+// Firestore database reference (set in initFirestoreSync when Firebase is ready)
+let db = null;
+
 /**
  * Return the pulse color for a given marker type.
  * @param {string} type
@@ -70,6 +73,75 @@ const saveUserTrees = () => {
   localStorage.setItem('userTrees', JSON.stringify(userTrees));
 };
 
+// ---------- Firestore Helpers ----------
+
+const saveMarkerToCloud = async marker => {
+  if (!db) return;
+  try {
+    await db.collection('markers').doc(String(marker.id)).set(marker);
+  } catch (err) {
+    console.error('Failed to save marker to Firestore', err);
+  }
+};
+
+const deleteMarkerFromCloud = async id => {
+  if (!db) return;
+  try {
+    await db.collection('markers').doc(String(id)).delete();
+  } catch (err) {
+    console.error('Failed to delete marker from Firestore', err);
+  }
+};
+
+const fetchCloudMarkers = async () => {
+  if (!db) return [];
+  try {
+    const snap = await db.collection('markers').get();
+    return snap.docs.map(d => d.data());
+  } catch (err) {
+    console.error('Failed to load markers from Firestore', err);
+    return [];
+  }
+};
+
+const listenForMarkerChanges = () => {
+  if (!db) return;
+  db.collection('markers').onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      const data = change.doc.data();
+      const idx = userTrees.findIndex(t => String(t.id) === String(data.id));
+      if (change.type === 'removed') {
+        if (idx !== -1) userTrees.splice(idx, 1);
+      } else {
+        if (idx !== -1) userTrees[idx] = data; else userTrees.push(data);
+      }
+    });
+    saveUserTrees();
+    drawUserMarkers();
+  }, err => {
+    console.error('Realtime marker listener failed', err);
+  });
+};
+
+const initFirestoreSync = async () => {
+  if (typeof firebase === 'undefined' || !firebase.firestore) return;
+  try {
+    db = firebase.firestore();
+  } catch (err) {
+    console.error('Firestore init error', err);
+    return;
+  }
+  const cloud = await fetchCloudMarkers();
+  if (cloud.length) {
+    userTrees = cloud;
+    saveUserTrees();
+    drawUserMarkers();
+  }
+  listenForMarkerChanges();
+};
+
+window.addEventListener('load', initFirestoreSync);
+
 export let userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
 
 export let activeTypes = { hive: true, swarm: true, tree: true, structure: true };
@@ -126,10 +198,12 @@ const importUserMarkers = () => {
           if (existing) {
             Object.assign(existing, { type, lat, lng, notes, timestamp, name, showRadius });
             if (photoUrl) existing.photoUrl = photoUrl;
+            saveMarkerToCloud(existing);
           } else {
             const newTree = { type, lat, lng, notes, timestamp, id, name, showRadius };
             if (photoUrl) newTree.photoUrl = photoUrl;
             userTrees.push(newTree);
+            saveMarkerToCloud(newTree);
           }
           changed = true;
         });
@@ -154,6 +228,7 @@ const importUserMarkers = () => {
 
 const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
+  userTrees.forEach(m => deleteMarkerFromCloud(m.id));
   userTrees = [];
   saveUserTrees();
   drawUserMarkers();
@@ -354,6 +429,7 @@ if (addTreeForm) {
         marker.notes = notes;
         marker.showRadius = showRadius;
         if (photoUrl) marker.photoUrl = photoUrl;
+        saveMarkerToCloud(marker);
       }
       editingMarkerId = null;
     } else {
@@ -362,6 +438,7 @@ if (addTreeForm) {
       const newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
       if (photoUrl) newTree.photoUrl = photoUrl;
       userTrees.push(newTree);
+      saveMarkerToCloud(newTree);
     }
 
     saveUserTrees();
@@ -421,6 +498,7 @@ map.on('popupopen', e => {
       // Remove from userTrees and update localStorage
       userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
+      deleteMarkerFromCloud(markerId);
       // Remove photo from Firebase Storage if exists
       if (marker && marker.photoUrl) {
         try {

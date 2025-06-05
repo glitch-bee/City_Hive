@@ -21,6 +21,7 @@
 - [x] Public Firebase config committed for static hosting
 - [x] Open beta release (initially on GitHub Pages, now hosted on Firebase)
 - [x] Basic Firestore sync of user markers
+- [x] Markers stored in Firestore instead of localStorage
 
 ## In Progress
 

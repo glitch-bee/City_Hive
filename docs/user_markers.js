@@ -11,8 +11,7 @@ const subscribeToMarkers = () => {
   if (!markersRef) return;
   markersRef.onSnapshot(
     snap => {
-      userTrees = snap.docs.map(d => d.data());
-      saveUserTrees();
+      userTrees = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       drawUserMarkers();
     },
     err => console.error('Firestore listen failed', err)
@@ -94,18 +93,15 @@ const buildPopupHtml = tree => {
     const d = new Date(tree.timestamp);
     html += `<small>Added: ${d.toLocaleString()}</small><br>`;
   }
-  if (!tree.userId || tree.userId === currentUserId) {
+  if (tree.userId === currentUserId) {
     html += `<button class="edit-marker-btn" data-id="${tree.id}">Edit</button> `;
     html += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
   }
   return html;
 };
 
-const saveUserTrees = () => {
-  localStorage.setItem('userTrees', JSON.stringify(userTrees));
-};
-
-export let userTrees = JSON.parse(localStorage.getItem('userTrees') || '[]');
+// In-memory cache of marker documents
+export let userTrees = [];
 
 export let activeTypes = { hive: true, swarm: true, tree: true, structure: true };
 
@@ -121,7 +117,7 @@ filterCheckboxes.forEach(cb => {
 
 const exportUserMarkers = () => {
   const data = userTrees
-    .filter(t => !t.userId || t.userId === currentUserId)
+    .filter(t => t.userId === currentUserId)
     .map(({type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl}) => {
       const obj = { type, lat, lng, notes, timestamp, id, name, showRadius };
       if (photoUrl) obj.photoUrl = photoUrl;
@@ -150,35 +146,43 @@ const importUserMarkers = () => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev => {
+    reader.onload = async ev => {
       try {
         const data = JSON.parse(ev.target.result);
         if (!Array.isArray(data)) throw new Error('Invalid format');
         let changed = false;
-        data.forEach(item => {
+        data.forEach(async item => {
           if (!item || typeof item !== 'object') return;
           if (typeof item.lat !== 'number' || typeof item.lng !== 'number' || !item.id) return;
           const { type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl } = item;
           const existing = userTrees.find(t => String(t.id) === String(id));
-          if (existing) {
+          if (existing && existing.userId === currentUserId) {
             Object.assign(existing, { type, lat, lng, notes, timestamp, name, showRadius });
             if (photoUrl) existing.photoUrl = photoUrl;
-            if (firebaseEnabled && markersRef && (!existing.userId || existing.userId === currentUserId)) {
-              existing.userId = currentUserId;
-              markersRef.doc(existing.id).set(existing).catch(console.error);
-            }
-          } else {
-            const newTree = { type, lat, lng, notes, timestamp, id, name, showRadius, userId: currentUserId };
-            if (photoUrl) newTree.photoUrl = photoUrl;
-            userTrees.push(newTree);
             if (firebaseEnabled && markersRef) {
-              markersRef.doc(newTree.id).set(newTree).catch(console.error);
+              const updateData = { type, lat, lng, notes, timestamp, name, showRadius };
+              if (photoUrl) updateData.photoUrl = photoUrl;
+              markersRef.doc(existing.id).update(updateData).catch(console.error);
             }
+          } else if (!existing) {
+            const newTree = { type, lat, lng, notes, timestamp, name, showRadius, userId: currentUserId };
+            if (photoUrl) newTree.photoUrl = photoUrl;
+            if (firebaseEnabled && markersRef) {
+              try {
+                const docRef = await markersRef.add(newTree);
+                newTree.id = docRef.id;
+              } catch (err) {
+                console.error(err);
+                newTree.id = id;
+              }
+            } else {
+              newTree.id = id;
+            }
+            userTrees.push(newTree);
           }
           changed = true;
         });
         if (changed) {
-          saveUserTrees();
           drawUserMarkers();
           alert('Markers imported successfully.');
         } else {
@@ -198,12 +202,11 @@ const importUserMarkers = () => {
 
 const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
-  const toDelete = userTrees.filter(t => !t.userId || t.userId === currentUserId);
-  userTrees = userTrees.filter(t => t.userId && t.userId !== currentUserId);
+  const toDelete = userTrees.filter(t => t.userId === currentUserId);
+  userTrees = userTrees.filter(t => t.userId !== currentUserId);
   if (firebaseEnabled && markersRef) {
     toDelete.forEach(m => markersRef.doc(m.id).delete().catch(console.error));
   }
-  saveUserTrees();
   drawUserMarkers();
 };
 
@@ -394,7 +397,7 @@ if (addTreeForm) {
 
     if (editingMarkerId) {
       const marker = userTrees.find(t => String(t.id) === String(editingMarkerId));
-      if (marker) {
+      if (marker && marker.userId === currentUserId) {
         marker.type = type;
         marker.lat = lat;
         marker.lng = lng;
@@ -402,24 +405,31 @@ if (addTreeForm) {
         marker.notes = notes;
         marker.showRadius = showRadius;
         if (photoUrl) marker.photoUrl = photoUrl;
-        if (firebaseEnabled && markersRef && (!marker.userId || marker.userId === currentUserId)) {
-          marker.userId = currentUserId;
-          markersRef.doc(marker.id).set(marker).catch(console.error);
+        if (firebaseEnabled && markersRef) {
+          const updateData = { type, lat, lng, name, notes, showRadius };
+          if (photoUrl) updateData.photoUrl = photoUrl;
+          markersRef.doc(marker.id).update(updateData).catch(console.error);
         }
       }
       editingMarkerId = null;
     } else {
-      const id = Date.now() + Math.random().toString(36).substr(2, 5);
       const timestamp = Date.now();
-      const newTree = { id, lat, lng, type, name, notes, showRadius, timestamp, userId: currentUserId };
+      const newTree = { lat, lng, type, name, notes, showRadius, timestamp, userId: currentUserId };
       if (photoUrl) newTree.photoUrl = photoUrl;
-      userTrees.push(newTree);
       if (firebaseEnabled && markersRef) {
-        markersRef.doc(newTree.id).set(newTree).catch(console.error);
+        try {
+          const docRef = await markersRef.add(newTree);
+          newTree.id = docRef.id;
+        } catch (err) {
+          console.error(err);
+          newTree.id = Date.now() + Math.random().toString(36).substr(2, 5);
+        }
+      } else {
+        newTree.id = Date.now() + Math.random().toString(36).substr(2, 5);
       }
+      userTrees.push(newTree);
     }
 
-    saveUserTrees();
     drawUserMarkers();
     addTreeForm.reset();
     document.getElementById('photoPreview').style.display = 'none';
@@ -445,7 +455,7 @@ map.on('popupopen', e => {
       ev.stopPropagation();
       const markerId = editBtn.getAttribute('data-id');
       const marker = userTrees.find(t => String(t.id) === String(markerId));
-      if (marker && (!marker.userId || marker.userId === currentUserId)) {
+      if (marker && marker.userId === currentUserId) {
         document.getElementById('typeInput').value = marker.type || '';
         document.getElementById('latInput').value = marker.lat;
         document.getElementById('lngInput').value = marker.lng;
@@ -473,16 +483,15 @@ map.on('popupopen', e => {
       const markerId = deleteBtn.getAttribute('data-id');
       // Find marker to get photo URL
       const marker = userTrees.find(t => String(t.id) === String(markerId));
-      // Remove from userTrees and update localStorage
-      userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
-      saveUserTrees();
-      if (firebaseEnabled && markersRef && (!marker || !marker.userId || marker.userId === currentUserId)) {
-        markersRef.doc(markerId).delete().catch(console.error);
+      if (marker && marker.userId === currentUserId) {
+        userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
+        if (firebaseEnabled && markersRef) {
+          markersRef.doc(markerId).delete().catch(console.error);
+        }
       }
       // Remove photo from Firebase Storage if exists
-      if (marker && marker.photoUrl) {
+      if (marker && marker.userId === currentUserId && marker.photoUrl) {
         try {
-          // Extract the path from the photoUrl
           const baseUrl = firebase.storage().ref().toString();
           const path = marker.photoUrl.split(`${baseUrl}/`)[1];
           if (path) {

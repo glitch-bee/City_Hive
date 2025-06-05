@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 
 export const firebaseConfig = {
@@ -14,6 +14,7 @@ export const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
+initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 export const storage = getStorage(app);
 export const db = getFirestore(app);
 export const auth = getAuth(app);

@@ -24,6 +24,7 @@ const getColor = species => {
     default: return '#ff3366';
   }
 };
+window.getColor = getColor;
 
 // Marker cluster group (with cluster-click disabled)
 const markers = L.markerClusterGroup({

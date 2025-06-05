@@ -632,18 +632,7 @@
   <script src="user_markers.js"></script>
   <script src="ui.js"></script>
   <script src="utils.js"></script>
-  <script type="module">
-    import { map } from './main.js';
-    import { markers } from './markers.js';
-    const legend = document.getElementById('legend');
-    const legendToggleBtn = document.getElementById('legendToggleBtn');
-    let legendVisible = true;
-    legend.style.display = 'block';
-    legendToggleBtn.onclick = function() {
-      legendVisible = !legendVisible;
-      legend.style.display = legendVisible ? 'block' : 'none';
-      legendToggleBtn.style.background = legendVisible ? 'linear-gradient(90deg,#00b894 60%,#6e44ff 100%)' : 'linear-gradient(90deg,#6e44ff 60%,#00b894 100%)';
-    };
+ 
     // Optionally, hide legend when clicking outside
     document.addEventListener('click', function(e) {
       if (legendVisible && !legend.contains(e.target) && !legendToggleBtn.contains(e.target)) {

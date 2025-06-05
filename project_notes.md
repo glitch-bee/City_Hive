@@ -78,7 +78,7 @@ City_Hive is a browser-based dashboard to map feral honey bee sightings and like
 ---
 
 ## **Contacts / Lead**
-Usher  
+Usher  ( pres.qns@nybeeclub.org )
 NY Bee Club  
 Last updated: 2025-09-05
 

@@ -20,15 +20,15 @@
 - [x] Firebase made optional for offline use
 - [x] Public Firebase config committed for static hosting
 - [x] Open beta release (initially on GitHub Pages, now hosted on Firebase)
+- [x] Basic Firestore sync of user markers
 
 ## In Progress
 
 - [ ] Date-based filtering of markers
-- [ ] Optional sync/cloud storage across devices
 
 ## Planned / Stretch Goals
 
 - [ ] Timeline or heatmap visualizations
 - [ ] Admin features for club data sharing
 
-_Last updated: 2025-09-05_
+_Last updated: 2025-06-05_

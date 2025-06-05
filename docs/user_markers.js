@@ -1,6 +1,39 @@
 // --- User Marker Logic ---
 // Provides creation and management of user-added markers on the map.
 import { map } from './main.js';
+import { firebaseEnabled } from './utils.js';
+
+let db = null;
+let markersRef = null;
+export let currentUserId = null;
+
+const subscribeToMarkers = () => {
+  if (!markersRef) return;
+  markersRef.onSnapshot(
+    snap => {
+      userTrees = snap.docs.map(d => d.data());
+      saveUserTrees();
+      drawUserMarkers();
+    },
+    err => console.error('Firestore listen failed', err)
+  );
+};
+
+if (firebaseEnabled) {
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      currentUserId = user.uid;
+      db = firebase.firestore();
+      markersRef = db.collection('markers');
+      subscribeToMarkers();
+    } else {
+      firebase
+        .auth()
+        .signInAnonymously()
+        .catch(console.error);
+    }
+  });
+}
 
 /**
  * Return the pulse color for a given marker type.
@@ -61,8 +94,10 @@ const buildPopupHtml = tree => {
     const d = new Date(tree.timestamp);
     html += `<small>Added: ${d.toLocaleString()}</small><br>`;
   }
-  html += `<button class="edit-marker-btn" data-id="${tree.id}">Edit</button> `;
-  html += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
+  if (!tree.userId || tree.userId === currentUserId) {
+    html += `<button class="edit-marker-btn" data-id="${tree.id}">Edit</button> `;
+    html += `<button class="delete-marker-btn" data-id="${tree.id}">Delete</button>`;
+  }
   return html;
 };
 
@@ -85,11 +120,13 @@ filterCheckboxes.forEach(cb => {
 });
 
 const exportUserMarkers = () => {
-  const data = userTrees.map(({type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl}) => {
-    const obj = { type, lat, lng, notes, timestamp, id, name, showRadius };
-    if (photoUrl) obj.photoUrl = photoUrl;
-    return obj;
-  });
+  const data = userTrees
+    .filter(t => !t.userId || t.userId === currentUserId)
+    .map(({type, lat, lng, notes, timestamp, id, name, showRadius, photoUrl}) => {
+      const obj = { type, lat, lng, notes, timestamp, id, name, showRadius };
+      if (photoUrl) obj.photoUrl = photoUrl;
+      return obj;
+    });
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const dateStr = new Date().toISOString().split('T')[0];
   const url = URL.createObjectURL(blob);
@@ -126,10 +163,17 @@ const importUserMarkers = () => {
           if (existing) {
             Object.assign(existing, { type, lat, lng, notes, timestamp, name, showRadius });
             if (photoUrl) existing.photoUrl = photoUrl;
+            if (firebaseEnabled && markersRef && (!existing.userId || existing.userId === currentUserId)) {
+              existing.userId = currentUserId;
+              markersRef.doc(existing.id).set(existing).catch(console.error);
+            }
           } else {
-            const newTree = { type, lat, lng, notes, timestamp, id, name, showRadius };
+            const newTree = { type, lat, lng, notes, timestamp, id, name, showRadius, userId: currentUserId };
             if (photoUrl) newTree.photoUrl = photoUrl;
             userTrees.push(newTree);
+            if (firebaseEnabled && markersRef) {
+              markersRef.doc(newTree.id).set(newTree).catch(console.error);
+            }
           }
           changed = true;
         });
@@ -154,7 +198,11 @@ const importUserMarkers = () => {
 
 const deleteAllUserMarkers = () => {
   if (!confirm('Delete ALL your markers?')) return;
-  userTrees = [];
+  const toDelete = userTrees.filter(t => !t.userId || t.userId === currentUserId);
+  userTrees = userTrees.filter(t => t.userId && t.userId !== currentUserId);
+  if (firebaseEnabled && markersRef) {
+    toDelete.forEach(m => markersRef.doc(m.id).delete().catch(console.error));
+  }
   saveUserTrees();
   drawUserMarkers();
 };
@@ -354,14 +402,21 @@ if (addTreeForm) {
         marker.notes = notes;
         marker.showRadius = showRadius;
         if (photoUrl) marker.photoUrl = photoUrl;
+        if (firebaseEnabled && markersRef && (!marker.userId || marker.userId === currentUserId)) {
+          marker.userId = currentUserId;
+          markersRef.doc(marker.id).set(marker).catch(console.error);
+        }
       }
       editingMarkerId = null;
     } else {
       const id = Date.now() + Math.random().toString(36).substr(2, 5);
       const timestamp = Date.now();
-      const newTree = { id, lat, lng, type, name, notes, showRadius, timestamp };
+      const newTree = { id, lat, lng, type, name, notes, showRadius, timestamp, userId: currentUserId };
       if (photoUrl) newTree.photoUrl = photoUrl;
       userTrees.push(newTree);
+      if (firebaseEnabled && markersRef) {
+        markersRef.doc(newTree.id).set(newTree).catch(console.error);
+      }
     }
 
     saveUserTrees();
@@ -390,7 +445,7 @@ map.on('popupopen', e => {
       ev.stopPropagation();
       const markerId = editBtn.getAttribute('data-id');
       const marker = userTrees.find(t => String(t.id) === String(markerId));
-      if (marker) {
+      if (marker && (!marker.userId || marker.userId === currentUserId)) {
         document.getElementById('typeInput').value = marker.type || '';
         document.getElementById('latInput').value = marker.lat;
         document.getElementById('lngInput').value = marker.lng;
@@ -421,6 +476,9 @@ map.on('popupopen', e => {
       // Remove from userTrees and update localStorage
       userTrees = userTrees.filter(t => String(t.id) !== String(markerId));
       saveUserTrees();
+      if (firebaseEnabled && markersRef && (!marker || !marker.userId || marker.userId === currentUserId)) {
+        markersRef.doc(markerId).delete().catch(console.error);
+      }
       // Remove photo from Firebase Storage if exists
       if (marker && marker.photoUrl) {
         try {
